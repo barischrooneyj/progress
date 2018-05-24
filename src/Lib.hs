@@ -30,26 +30,26 @@ runExample = pPrint $ runDBState example
 
 example = do
   -- | Creating two users.
-  gabriel <- addUser $ user "gabmass" "!@£$%^&*()"
-  jeremy  <- addUser $ user "barischrooneyj" "!@£$%^&*()"
+  gabriel <- add $ user "gabmass" "!@£$%^&*()"
+  jeremy  <- add $ user "barischrooneyj" "!@£$%^&*()"
 
   -- | A few regions including the root "World".
-  world   <- addRegion $ region jeremy "World"
-  germany <- addRegion $ region' jeremy "Germany" world
-  france  <- addRegion $ region' gabriel "France" world
+  world   <- add $ region jeremy "World"
+  germany <- add $ region' jeremy "Germany" world
+  france  <- add $ region' gabriel "France" world
 
   -- | Some metrics, not connected to regions yet.
-  co2        <- addMetric $ metric gabriel "CO2 Emissions" (SI.liter Dim./ SI.second)
-  plasticTax <- addMetric $ metric' gabriel "Plastic Tax" "%"
+  co2        <- add $ metric gabriel "CO2 Emissions" (SI.liter Dim./ SI.second)
+  plasticTax <- add $ metric' gabriel "Plastic Tax" "%"
 
   -- | Some progress for the regions.
-  co2Germany        <- addProgress $ progress co2 germany [(47, 0), (40, 10)]
-  co2France         <- addProgress $ progress co2 france [(45, 0), (42, 10)]
-  plasticTaxFrance  <- addProgress $ progress plasticTax france [(10, 0), (10, 10)]
-  plasticTaxGermany <- addProgress $ progress plasticTax germany [(8, 0), (10, 10)]
+  co2Germany        <- add $ progress co2 germany [(47, 0), (40, 10)]
+  co2France         <- add $ progress co2 france [(45, 0), (42, 10)]
+  plasticTaxFrance  <- add $ progress plasticTax france [(10, 0), (10, 10)]
+  plasticTaxGermany <- add $ progress plasticTax germany [(8, 0), (10, 10)]
 
   -- | CO2 targets for France.
-  franceCo2Targets <- addTargets $ targets co2 france [
+  franceCo2Targets <- add $ targets co2 france [
     targetDecrease 35 "UN 2020" "1/1/2020",
     targetDecrease 30 "National Plan" "1/1/2025"]
 
@@ -222,55 +222,58 @@ runDBState operations = evalState (operations >> get) emptyDB
 
 -- ** Adding to the database.
 
+class Add a where
+  add :: a -> State DB a
+
 -- | Add a user to the database.
-addUser :: User -> State DB User
-addUser newUser = do
-  db <- get
-  put $ db { _users = Set.insert newUser (_users  db) }
-  pure newUser
+instance Add User where
+  add newUser = do
+    db <- get
+    put $ db { _users = Set.insert newUser (_users  db) }
+    pure newUser
 
 -- | Add a region to the database.
-addRegion :: Region -> State DB Region
-addRegion newRegion = do
-  regionId <- nextId
-  db <- get
-  let newRegion' = newRegion { _rgid = regionId }
-  put $ db { _regions = Map.insert regionId newRegion' (_regions  db) }
-  pure newRegion'
+instance Add Region where
+  add newRegion = do
+    regionId <- nextId
+    db <- get
+    let newRegion' = newRegion { _rgid = regionId }
+    put $ db { _regions = Map.insert regionId newRegion' (_regions  db) }
+    pure newRegion'
 
 -- | Add a metric to the database.
-addMetric :: Metric -> State DB Metric
-addMetric newMetric = do
-  metricId <- nextId
-  db <- get
-  let newMetric' = newMetric { _mid = metricId }
-  put $ db { _metrics = Set.insert newMetric' (_metrics db) }
-  pure newMetric'
+instance Add Metric where
+  add newMetric = do
+    metricId <- nextId
+    db <- get
+    let newMetric' = newMetric { _mid = metricId }
+    put $ db { _metrics = Set.insert newMetric' (_metrics db) }
+    pure newMetric'
 
 -- | Add a progress to the database.
-addProgress :: Progress -> State DB Progress
-addProgress newProgress = do
-  progressId <- nextId
-  db <- get
-  let newProgress' = newProgress { _pid = progressId }
-      region_      = fromJust $ Map.lookup (_pregion newProgress) $ _regions db
-      newRegion    = region_ { _progresss = Set.insert progressId (_progresss region_) }
-  put $ db {
-      _dbProgresss = Map.insert progressId newProgress' (_dbProgresss db)
-    , _regions   = Map.insert (_pregion newProgress) newRegion $ _regions db
-    }
-  pure newProgress'
+instance Add Progress where
+  add newProgress = do
+    progressId <- nextId
+    db <- get
+    let newProgress' = newProgress { _pid = progressId }
+        region_      = fromJust $ Map.lookup (_pregion newProgress) $ _regions db
+        newRegion    = region_ { _progresss = Set.insert progressId (_progresss region_) }
+    put $ db {
+        _dbProgresss = Map.insert progressId newProgress' (_dbProgresss db)
+      , _regions   = Map.insert (_pregion newProgress) newRegion $ _regions db
+      }
+    pure newProgress'
 
 -- | Add a targets to the database.
-addTargets :: Targets -> State DB Targets
-addTargets newTargets = do
-  targetsId <- nextId
-  db <- get
-  let newTargets' = newTargets { _tsid = targetsId }
-      region_     = fromJust $ Map.lookup (_tregion newTargets) $ _regions db
-      newRegion   = region_ { _targetss = Set.insert targetsId (_targetss region_) }
-  put $ db {
-      _dbTargetss = Map.insert targetsId newTargets' (_dbTargetss db)
-    , _regions   = Map.insert (_tregion newTargets) newRegion $ _regions db
-    }
-  pure newTargets'
+instance Add Targets where
+  add newTargets = do
+    targetsId <- nextId
+    db <- get
+    let newTargets' = newTargets { _tsid = targetsId }
+        region_     = fromJust $ Map.lookup (_tregion newTargets) $ _regions db
+        newRegion   = region_ { _targetss = Set.insert targetsId (_targetss region_) }
+    put $ db {
+        _dbTargetss = Map.insert targetsId newTargets' (_dbTargetss db)
+      , _regions   = Map.insert (_tregion newTargets) newRegion $ _regions db
+      }
+    pure newTargets'
