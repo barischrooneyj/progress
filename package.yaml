@@ -23,10 +23,8 @@ dependencies:
 - base >= 4.7 && < 5
 - containers
 - datetime
-- groundhog
-- groundhog-sqlite
-- groundhog-th
 - dimensional
+- mtl
 - text
 - pretty-simple
 
@@ -45,7 +43,7 @@ executables:
     - progress
 
 tests:
-  data-democracy-test:
+  progress-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:

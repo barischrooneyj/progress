@@ -7,6 +7,13 @@ module Lib where
 
 -- * Modeling the progress and targets of regions.
 
+-- ** TODO: Suggest metrics for sibling regions.
+-- ** TODO: Show progress of a region in terms of children.
+-- ** TODO: Show progress of other regions on same metric.
+-- ** TODO: Better date input format.
+-- ** TODO: Verify Eq and Ord instances.
+
+import           Control.Monad.State
 import           Data.Set                          (Set)
 import qualified Data.Set                          as Set
 import           Numeric.Units.Dimensional         as Dim
@@ -14,6 +21,16 @@ import qualified Numeric.Units.Dimensional.SIUnits as SI
 import           Text.Pretty.Simple                (pPrint)
 
 -- ** Example usage.
+
+runExample :: IO ()
+runExample = runDBState $ do
+
+  -- | Creating two users.
+  gabriel <- addUser $ user "gabmass" "!@£$%^&*()"
+  jeremy <- addUser $ user "barischrooneyj" "!@£$%^&*()"
+
+
+  pure ()
 
 -- | Creating two users.
 gabriel = user "gabmass" "!@£$%^&*()"
@@ -76,7 +93,7 @@ data User = User {
     _username :: Username
   , _home     :: Maybe RegionId
   , _pwdHash  :: PasswordHash
-  } deriving (Show, Read)
+  } deriving (Eq, Ord, Read, Show)
 
 -- | A measurable quantity like "CO2 emissions" or "Plastic tax".
 data Metric = Metric {
@@ -96,7 +113,7 @@ data Region = Region {
   , _reps     :: [RepId] -- ^ Order of importance.
   , _parents  :: Set RegionId
   , _children :: Set RegionId
-  } deriving (Show, Read)
+  } deriving (Read, Show)
 
 -- | Measurements for one (metric, region).
 data Progress = Progress {
@@ -115,15 +132,15 @@ data Targets = Targets {
   , _metric  :: MetricId
   , _region  :: RegionId
   , _targets :: [Target]
-  } deriving (Eq, Ord, Show, Read)
+  } deriving (Eq, Ord, Read, Show)
 
 -- | A target for some metric with a description.
 data Target = Target TargetValue TargetDesc String
-  deriving (Eq, Ord, Show, Read)
+  deriving (Eq, Ord, Read, Show)
 
 -- |The different types of target.
 data TargetValue = NumTarget MetricValue Bool | BoolTarget Bool
-  deriving (Eq, Ord, Show, Read)
+  deriving (Eq, Ord, Read, Show)
 
 -- | A contactable representative.
 data Rep = Rep {
@@ -132,7 +149,7 @@ data Rep = Rep {
   , _name  :: RepName
   , _email :: [Email]
   , _phone :: [Phone]
-  }
+  } deriving Show
 
 -- ** Constructors for the data types.
 
@@ -180,3 +197,32 @@ dimensionName (Dim' l m t _i _th _n _j) =
         power s x = show s ++ "^" ++ show x
         power' :: DimensionName -> Int -> DimensionName
         power' s x = filter (/= '\"') (power s x)
+
+-- ** Model of the entire program state.
+
+-- | Currently we are using the State monad as an in-memory database.
+
+-- | Each field is like a table in a database.
+data DB = DB {
+    _users     :: Set User
+  , _metrics   :: Set Metric
+  , _regions   :: Set Region
+  , _progresss :: Set Progress
+  , _targetss  :: Set Targets
+  , _reps      :: Set Rep
+  } deriving Show
+
+-- | A database with no data.
+emptyDB :: DB
+emptyDB = DB Set.empty Set.empty Set.empty Set.empty Set.empty Set.empty
+
+-- | Add a user to the database.
+addUser :: User -> State DB User
+addUser newUser = do
+  db <- get
+  put $ db { _users = Set.insert newUser (_users  db) }
+  pure newUser
+
+-- | Run the given operations and print the resulting database.
+runDBState :: State DB a -> IO ()
+runDBState operations = pPrint $ evalState (operations >> get) emptyDB
