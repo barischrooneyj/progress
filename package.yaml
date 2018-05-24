@@ -22,10 +22,13 @@ description:         Please see the README on GitHub at <https://github.com/bari
 dependencies:
 - base >= 4.7 && < 5
 - containers
+- datetime
 - groundhog
 - groundhog-sqlite
 - groundhog-th
 - dimensional
+- text
+- pretty-simple
 
 library:
   source-dirs: src
