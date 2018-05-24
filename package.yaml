@@ -24,8 +24,8 @@ dependencies:
 - containers
 - datetime
 - dimensional
+- lens
 - mtl
-- text
 - pretty-simple
 
 library:

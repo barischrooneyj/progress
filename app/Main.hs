@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import           Tutorial (runExample)
 
 main :: IO ()
 main = runExample
