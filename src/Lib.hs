@@ -16,16 +16,17 @@ import           Text.Pretty.Simple                (pPrint)
 -- ** Example usage.
 
 gabriel = user "gabmass" "!@£$%^&*()"
-germany = region gabriel "Germany"
-france = region gabriel "France"
-co2 = metric gabriel "CO2 Emissions" (SI.liter Dim./ SI.second)
-co2Germany = record gabriel co2 germany [(47, 0), (40, 10)]
-co2France = record gabriel co2 france [(45, 0), (42, 10)]
-plasticTax = metric' gabriel "Plastic Tax" "%"
-plasticTaxFrance = record gabriel plasticTax france [(10, 0), (10, 10)]
 jeremy = user "barischrooneyj" "!@£$%^&*()"
-plasticTaxGermany = record gabriel plasticTax germany [(8, 0), (10, 10)]
-franceCo2Goal = goal jeremy co2 france [
+world = region jeremy "World"
+germany = region' jeremy "Germany" world
+france = region' gabriel "France" world
+co2 = metric gabriel "CO2 Emissions" (SI.liter Dim./ SI.second)
+plasticTax = metric' gabriel "Plastic Tax" "%"
+co2Germany = record co2 germany [(47, 0), (40, 10)]
+co2France = record co2 france [(45, 0), (42, 10)]
+plasticTaxFrance = record plasticTax france [(10, 0), (10, 10)]
+plasticTaxGermany = record plasticTax germany [(8, 0), (10, 10)]
+franceCo2Goal = goal co2 france [
   targetDecrease "UN 2020" "1/1/2020" 35,
   targetDecrease "National Plan" "1/1/2025" 30]
 
@@ -75,14 +76,16 @@ data Metric = Metric {
   , _dim   :: Either Lib.Dimension MetricSymbol
   } deriving (Read, Show)
 
--- | Measurements and goals under one domain.
+-- | Measurements and goals for multiple metrics, under one region.
 data Region = Region {
-    _rgid    :: RegionId
-  , _owner   :: Username
-  , _name    :: RegionName
-  , _records :: Set RecordId
-  , _goals   :: Set GoalId
-  , _reps    :: [RepId]
+    _rgid     :: RegionId
+  , _rgowner  :: Username
+  , _name     :: RegionName
+  , _records  :: Set RecordId
+  , _goals    :: Set GoalId
+  , _reps     :: [RepId] -- ^ Order of importance.
+  , _parent   :: Set RegionId
+  , _children :: Set RegionId
   } deriving (Show, Read)
 
 -- | Measurements for one (metric, region).
@@ -95,7 +98,7 @@ data Record = Record {
   , _values :: Measurements
   } deriving (Eq, Ord, Read, Show)
 
--- | Targets to be reached in some metric.
+-- | Targets for one (metric, region).
 data Goal = Goal {
     _gid     :: GoalId
   , _owner   :: Username
@@ -137,15 +140,20 @@ metric' u mn d = Lib.Metric 0 (_username u) mn (Right d)
 
 -- | Constructor for an empty region.
 region :: User -> RegionName -> Region
-region u rn = Region 0 (_username u) rn Set.empty Set.empty []
+region u rn = Region 0 (_username u) rn Set.empty Set.empty [] Set.empty Set.empty
 
--- | Constructor for an empty record.
-record :: User -> Metric -> Region -> Measurements -> Record
-record u m r = Record 0 (_username u) (_mid m) (_rgid r) []
+-- | Constructor for a region with parent.
+region' :: User -> RegionName -> Region -> Region
+region' u rn r =
+  Region 0 (_username u) rn Set.empty Set.empty [] (Set.singleton $ _rgid r) Set.empty
+
+-- | Constructor for a record.
+record :: Metric -> Region -> Measurements -> Record
+record m r = Record 0 (_rgowner r) (_mid m) (_rgid r) []
 
 -- | Constructor for a goal with given targets.
-goal :: User -> Metric -> Region -> [Target] -> Goal
-goal u m r = Goal 0 (_username u) (_mid m) (_rgid r)
+goal :: Metric -> Region -> [Target] -> Goal
+goal m r = Goal 0 (_rgowner r) (_mid m) (_rgid r)
 
 -- | Constructors for different types of target.
 targetIncrease desc date m = Target desc date $ NumTarget m True
