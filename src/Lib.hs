@@ -27,13 +27,15 @@ co2France = record co2 france [(45, 0), (42, 10)]
 plasticTaxFrance = record plasticTax france [(10, 0), (10, 10)]
 plasticTaxGermany = record plasticTax germany [(8, 0), (10, 10)]
 franceCo2Goal = goal co2 france [
-  targetDecrease "UN 2020" "1/1/2020" 35,
-  targetDecrease "National Plan" "1/1/2025" 30]
+  targetDecrease 35 "UN 2020" "1/1/2020",
+  targetDecrease 30 "National Plan" "1/1/2025"]
 
 someFunc :: IO ()
 someFunc = do
-  let s = show france
-  pPrint (read s :: Region)
+  -- | Showing how we can print/parse a data type.
+  let franceString = show france
+      france'      = read franceString :: Region
+  pPrint france'
   pPrint co2France
   pPrint franceCo2Goal
 
@@ -108,7 +110,7 @@ data Goal = Goal {
   } deriving (Eq, Ord, Show, Read)
 
 -- | A target for some metric with a description.
-data Target = Target TargetDesc String TargetValue
+data Target = Target TargetValue TargetDesc String
   deriving (Eq, Ord, Show, Read)
 
 -- |The different types of target.
@@ -124,7 +126,7 @@ data Representative = Representative {
   , _phone :: [Phone]
   }
 
--- ** Helper constructors for the data types.
+-- ** Constructors for the data types.
 
 -- | Constructor for a user.
 user :: Username -> PasswordHash -> User
@@ -156,9 +158,9 @@ goal :: Metric -> Region -> [Target] -> Goal
 goal m r = Goal 0 (_rgowner r) (_mid m) (_rgid r)
 
 -- | Constructors for different types of target.
-targetIncrease desc date m = Target desc date $ NumTarget m True
-targetDecrease desc date m = Target desc date $ NumTarget m False
-targetBool     desc date b = Target desc date $ BoolTarget b
+targetIncrease m = Target $ NumTarget m True
+targetDecrease m = Target $ NumTarget m False
+targetBool     b = Target $ BoolTarget b
 
 -- | A readable representation of dimensions.
 dimensionName :: Lib.Dimension -> DimensionName
