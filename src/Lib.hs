@@ -5,7 +5,7 @@
 
 module Lib where
 
--- * Modeling region's and their issues.
+-- * Modeling the progress and targets of regions.
 
 import           Data.Set                          (Set)
 import qualified Data.Set                          as Set
@@ -15,18 +15,26 @@ import           Text.Pretty.Simple                (pPrint)
 
 -- ** Example usage.
 
+-- | Creating two users.
 gabriel = user "gabmass" "!@£$%^&*()"
 jeremy = user "barischrooneyj" "!@£$%^&*()"
-world = region jeremy "World"
-germany = region' jeremy "Germany" world
-france = region' gabriel "France" world
+
+world = region jeremy "World" -- ^ I own the world.
+germany = region' jeremy "Germany" world  -- ^ And Germany, child of world.
+france = region' gabriel "France" world  -- ^ You own France, child of world.
+
+-- | Two metrics.
 co2 = metric gabriel "CO2 Emissions" (SI.liter Dim./ SI.second)
 plasticTax = metric' gabriel "Plastic Tax" "%"
-co2Germany = record co2 germany [(47, 0), (40, 10)]
-co2France = record co2 france [(45, 0), (42, 10)]
-plasticTaxFrance = record plasticTax france [(10, 0), (10, 10)]
-plasticTaxGermany = record plasticTax germany [(8, 0), (10, 10)]
-franceCo2Goal = goal co2 france [
+
+-- | Progress in those metrics for France and Germany.
+co2Germany = progress co2 germany [(47, 0), (40, 10)]
+co2France = progress co2 france [(45, 0), (42, 10)]
+plasticTaxFrance = progress plasticTax france [(10, 0), (10, 10)]
+plasticTaxGermany = progress plasticTax germany [(8, 0), (10, 10)]
+
+-- | CO2 targets for France.
+franceCo2Targets = targets co2 france [
   targetDecrease 35 "UN 2020" "1/1/2020",
   targetDecrease 30 "National Plan" "1/1/2025"]
 
@@ -37,33 +45,33 @@ someFunc = do
       france'      = read franceString :: Region
   pPrint france'
   pPrint co2France
-  pPrint franceCo2Goal
+  pPrint franceCo2Targets
 
 -- ** The data types.
 
 type Dimension     = Dimension'
 type DimensionName = String
 type Email         = String
-type GoalId        = Int
-type Measurements  = [(MetricValue, Seconds)]
+type Measurement   = (MetricValue, Seconds)
 type MetricId      = Int
 type MetricName    = String
 type MetricSymbol  = String
 type MetricValue   = Double
 type PasswordHash  = String
 type Phone         = String
-type RecordId      = Int
+type ProgressId    = Int
 type RegionId      = Int
 type RegionName    = String
 type RepId         = Int
 type RepName       = String
 type Seconds       = Integer
 type TargetDesc    = String
+type TargetsId     = Int
 type Username      = String
 
 deriving instance Read Dimension'
 
--- | A user currently only has a username.
+-- | A user of the website.
 data User = User {
     _username :: Username
   , _home     :: Maybe RegionId
@@ -78,31 +86,31 @@ data Metric = Metric {
   , _dim   :: Either Lib.Dimension MetricSymbol
   } deriving (Read, Show)
 
--- | Measurements and goals for multiple metrics, under one region.
+-- | Progress and targets for multiple metrics, under one region.
 data Region = Region {
     _rgid     :: RegionId
   , _rgowner  :: Username
   , _name     :: RegionName
-  , _records  :: Set RecordId
-  , _goals    :: Set GoalId
+  , _progress :: Set ProgressId
+  , _targets  :: Set TargetsId
   , _reps     :: [RepId] -- ^ Order of importance.
-  , _parent   :: Set RegionId
+  , _parents  :: Set RegionId
   , _children :: Set RegionId
   } deriving (Show, Read)
 
 -- | Measurements for one (metric, region).
-data Record = Record {
-    _rcid   :: RecordId
+data Progress = Progress {
+    _pid    :: ProgressId
   , _owner  :: Username
   , _metric :: MetricId
   , _region :: RegionId
   , _reps   :: [RepId]
-  , _values :: Measurements
+  , _values :: [Measurement]
   } deriving (Eq, Ord, Read, Show)
 
 -- | Targets for one (metric, region).
-data Goal = Goal {
-    _gid     :: GoalId
+data Targets = Targets {
+    _tsid    :: TargetsId
   , _owner   :: Username
   , _metric  :: MetricId
   , _region  :: RegionId
@@ -118,7 +126,7 @@ data TargetValue = NumTarget MetricValue Bool | BoolTarget Bool
   deriving (Eq, Ord, Show, Read)
 
 -- | A contactable representative.
-data Representative = Representative {
+data Rep = Rep {
     _rpid  :: RepId
   , _owner :: Username
   , _name  :: RepName
@@ -149,18 +157,20 @@ region' :: User -> RegionName -> Region -> Region
 region' u rn r =
   Region 0 (_username u) rn Set.empty Set.empty [] (Set.singleton $ _rgid r) Set.empty
 
--- | Constructor for a record.
-record :: Metric -> Region -> Measurements -> Record
-record m r = Record 0 (_rgowner r) (_mid m) (_rgid r) []
+-- | Constructor for some progress.
+progress :: Metric -> Region -> [Measurement] -> Progress
+progress m r = Progress 0 (_rgowner r) (_mid m) (_rgid r) []
 
 -- | Constructor for a goal with given targets.
-goal :: Metric -> Region -> [Target] -> Goal
-goal m r = Goal 0 (_rgowner r) (_mid m) (_rgid r)
+targets :: Metric -> Region -> [Target] -> Targets
+targets m r = Targets 0 (_rgowner r) (_mid m) (_rgid r)
 
 -- | Constructors for different types of target.
 targetIncrease m = Target $ NumTarget m True
 targetDecrease m = Target $ NumTarget m False
 targetBool     b = Target $ BoolTarget b
+
+-- ** Helper functions.
 
 -- | A readable representation of dimensions.
 dimensionName :: Lib.Dimension -> DimensionName
