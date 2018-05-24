@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module Constructors where
 
 -- ** Helpful constructors for the data types.
@@ -46,8 +44,8 @@ targetDecrease m = Target $ NumTarget m False
 targetBool     b = Target $ BoolTarget b
 
 -- | A database with no data.
-emptyDB :: DB
-emptyDB = DB 0 Map.empty Map.empty Map.empty Map.empty Map.empty Map.empty
+emptyDatabase :: Database
+emptyDatabase = Database 0 Map.empty Map.empty Map.empty Map.empty Map.empty Map.empty
 
 -- ** Helper functions on the data types.
 

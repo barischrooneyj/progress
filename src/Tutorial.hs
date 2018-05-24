@@ -1,5 +1,7 @@
 module Tutorial where
 
+-- * Example database usage.
+
 import           Numeric.Units.Dimensional         as Dim
 import qualified Numeric.Units.Dimensional.SIUnits as SI
 import           Text.Pretty.Simple                (pPrint)
@@ -7,8 +9,7 @@ import           Text.Pretty.Simple                (pPrint)
 import qualified Constructors                      as C
 import           Database                          (DBOps, add, runDBOps)
 
--- ** Example usage.
-
+-- | Pretty print the database after running the example below.
 runExample :: IO ()
 runExample = pPrint $
   -- | runDBOps will return the database after running the example.

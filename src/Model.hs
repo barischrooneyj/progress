@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 {-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses  #-}
@@ -15,11 +17,9 @@ module Model where
 -- ** TODO: Better date input format.
 -- ** TODO: Correct Eq and Ord instances.
 -- ** TODO: Handle error cases in 'add'.
--- ** TODO: Add lens library.
 
-import           Control.Lens
+import           Control.Lens              (camelCaseFields, makeLensesWith)
 import           Data.Map                  (Map)
-import qualified Data.Map                  as Map
 import           Data.Set                  (Set)
 import           Numeric.Units.Dimensional as Dim
 
@@ -71,31 +71,23 @@ data Region = Region {
   , _regionOwner    :: Username
   , _regionName     :: RegionName
   , _regionProgress :: Set ProgressId
-  , _regionTargetss :: Set TargetsId
+  , _regionTargets  :: Set TargetsId
   , _regionReps     :: [RepId] -- ^ Order of importance.
-  , _parents        :: Set RegionId
-  , _children       :: Set RegionId
+  , _regionParents  :: Set RegionId
+  , _regionChildren :: Set RegionId
   } deriving (Eq, Ord, Read, Show)
 makeLensesWith camelCaseFields ''Region
 
 -- | Measurements for one (metric, region).
 data Progress = Progress {
-    _pid     :: ProgressId
-  , _powner  :: Username
-  , _metric  :: MetricId
-  , _pregion :: RegionId
-  , _preps   :: [RepId]
-  , _values  :: [Measurement]
+    _progressIdent  :: ProgressId
+  , _progressOwner  :: Username
+  , _progressMetric :: MetricId
+  , _progressRegion :: RegionId
+  , _progressReps   :: [RepId]
+  , _progressValues :: [Measurement]
   } deriving (Eq, Ord, Read, Show)
-
--- | Targets for one (metric, region).
-data Targets = Targets {
-    _tsid    :: TargetsId
-  , _towner  :: Username
-  , _tmetric :: MetricId
-  , _tregion :: RegionId
-  , _targets :: [Target]
-  } deriving (Eq, Ord, Read, Show)
+makeLensesWith camelCaseFields ''Progress
 
 -- | A target for some metric with a description.
 data Target = Target TargetValue TargetDesc String
@@ -105,23 +97,34 @@ data Target = Target TargetValue TargetDesc String
 data TargetValue = NumTarget MetricValue Bool | BoolTarget Bool
   deriving (Eq, Ord, Read, Show)
 
+-- | Targets for one (metric, region).
+data Targets = Targets {
+    _targetsIdent  :: TargetsId
+  , _targetsOwner  :: Username
+  , _targetsMetric :: MetricId
+  , _targetsRegion :: RegionId
+  , _targetsValues :: [Target]
+  } deriving (Eq, Ord, Read, Show)
+makeLensesWith camelCaseFields ''Targets
+
 -- | A contactable representative.
 data Rep = Rep {
     _repIdent :: RepId
-  , _rowner   :: Username
-  , _rename   :: RepName
-  , _email    :: [Email]
-  , _phone    :: [Phone]
+  , _repOwner :: Username
+  , _repName  :: RepName
+  , _repEmail :: [Email]
+  , _repPhone :: [Phone]
   } deriving Show
 makeLensesWith camelCaseFields ''Rep
 
 -- | Each field is like a table in a database.
-data DB = DB {
-    _nextId      :: ID
-  , _users       :: Map Username User
-  , _metrics     :: Map MetricId Metric
-  , _regions     :: Map RegionId Region
-  , _dbProgresss :: Map ProgressId Progress
-  , _dbTargetss  :: Map TargetsId Targets
-  , _dreps       :: Map RepId Rep
+data Database = Database {
+    _databaseIdent    :: ID
+  , _databaseUsers    :: Map Username User
+  , _databaseMetrics  :: Map MetricId Metric
+  , _databaseRegions  :: Map RegionId Region
+  , _databaseProgress :: Map ProgressId Progress
+  , _databaseTargets  :: Map TargetsId Targets
+  , _databaseReps     :: Map RepId Rep
   } deriving Show
+makeLensesWith camelCaseFields ''Database
