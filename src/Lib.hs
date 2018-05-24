@@ -181,7 +181,7 @@ targetBool     b = Target $ BoolTarget b
 
 -- ** Helper functions on the data types.
 
--- | A readable representation of dimensions.
+-- | A readable representation of a dimension.
 dimensionName :: Lib.Dimension -> DimensionName
 dimensionName (Dim' l m t _i _th _n _j) =
   power' "m" l ++ power' "g" m ++ power' "s" t
@@ -197,17 +197,17 @@ dimensionName (Dim' l m t _i _th _n _j) =
 -- | Each field is like a table in a database.
 data DB = DB {
     _nextId      :: ID
-  , _users       :: Set User
-  , _metrics     :: Set Metric
+  , _users       :: Map Username User
+  , _metrics     :: Map MetricId Metric
   , _regions     :: Map RegionId Region
   , _dbProgresss :: Map ProgressId Progress
   , _dbTargetss  :: Map TargetsId Targets
-  , _reps        :: Set Rep
+  , _reps        :: Map RepId Rep
   } deriving Show
 
 -- | A database with no data.
 emptyDB :: DB
-emptyDB = DB 0 Set.empty Set.empty Map.empty Map.empty Map.empty Set.empty
+emptyDB = DB 0 Map.empty Map.empty Map.empty Map.empty Map.empty Map.empty
 
 -- | The next ID from the database.
 nextId :: State DB ID
@@ -222,18 +222,20 @@ runDBState operations = evalState (operations >> get) emptyDB
 
 -- ** Adding to the database.
 
-class Add a where
+-- | Any type which implements this can be modified in the database.
+-- These functions are responsible the integrity of the database.
+class DB' a where
   add :: a -> State DB a
 
--- | Add a user to the database.
-instance Add User where
+-- | Add a new user to the database.
+instance DB' User where
   add newUser = do
     db <- get
-    put $ db { _users = Set.insert newUser (_users  db) }
+    put $ db { _users = Map.insert (_username newUser) newUser (_users  db) }
     pure newUser
 
--- | Add a region to the database.
-instance Add Region where
+-- | Add a new region to the database.
+instance DB' Region where
   add newRegion = do
     regionId <- nextId
     db <- get
@@ -241,17 +243,17 @@ instance Add Region where
     put $ db { _regions = Map.insert regionId newRegion' (_regions  db) }
     pure newRegion'
 
--- | Add a metric to the database.
-instance Add Metric where
+-- | Add a new metric to the database.
+instance DB' Metric where
   add newMetric = do
     metricId <- nextId
     db <- get
     let newMetric' = newMetric { _mid = metricId }
-    put $ db { _metrics = Set.insert newMetric' (_metrics db) }
+    put $ db { _metrics = Map.insert metricId newMetric' (_metrics db) }
     pure newMetric'
 
--- | Add a progress to the database.
-instance Add Progress where
+-- | Add new progress to the database.
+instance DB' Progress where
   add newProgress = do
     progressId <- nextId
     db <- get
@@ -264,8 +266,8 @@ instance Add Progress where
       }
     pure newProgress'
 
--- | Add a targets to the database.
-instance Add Targets where
+-- | Add new targets to the database.
+instance DB' Targets where
   add newTargets = do
     targetsId <- nextId
     db <- get
