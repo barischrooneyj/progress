@@ -8,7 +8,6 @@ import qualified Data.Map            as Map
 import           Data.Maybe          (fromJust)
 import qualified Data.Set            as Set
 
-import qualified Constructors        as C
 import           Model
 
 -- | Currently we use the State monad as an in-memory database.
@@ -22,8 +21,8 @@ nextId = do
   pure $ db ^. ident
 
 -- | Run the given operations and return the final database.
-runDBOps :: DBOps a -> Database
-runDBOps ops = evalState (ops >> get) C.emptyDatabase
+runDBOps :: Database -> DBOps a -> Database
+runDBOps database ops = evalState (ops >> get) database
 
 -- | Any type which implements this typeclass can be modified in the database.
 -- These functions are responsible for the integrity of the database.

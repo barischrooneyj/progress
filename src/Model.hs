@@ -2,10 +2,11 @@
 
 {-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses  #-}
+{-# LANGUAGE GADTs                  #-}
+{-# LANGUAGE QuasiQuotes            #-}
 {-# LANGUAGE StandaloneDeriving     #-}
 {-# LANGUAGE TemplateHaskell        #-}
-{-# LANGUAGE TypeSynonymInstances   #-}
+{-# LANGUAGE TypeFamilies           #-}
 
 module Model where
 
@@ -17,14 +18,18 @@ module Model where
 -- ** TODO: Better date input format.
 -- ** TODO: Correct Eq and Ord instances.
 -- ** TODO: Handle error cases in 'add'.
+-- ** TODO: Add lookup methods.
+-- ** TODO: Add physical database, perhaps via Groundhog.
+-- ** TODO: Add HTTP API.
 
-import           Control.Lens              (camelCaseFields, makeLensesWith)
+import           Control.Lens
 import           Data.Map                  (Map)
 import           Data.Set                  (Set)
-import           Numeric.Units.Dimensional as Dim
+import           Numeric.Units.Dimensional (Dimension' (Dim'))
 
 -- ** The data types.
 
+type Date          = String
 type Dimension     = Dimension'
 type DimensionName = String
 type Email         = String
@@ -61,7 +66,7 @@ data Metric = Metric {
     _metricIdent :: MetricId
   , _metricOwner :: Username
   , _metricName  :: MetricName
-  , _metricDim   :: Either Model.Dimension MetricSymbol
+  , _metricDim   :: Either Dimension MetricSymbol
   } deriving (Eq, Ord, Read, Show)
 makeLensesWith camelCaseFields ''Metric
 
@@ -90,12 +95,14 @@ data Progress = Progress {
 makeLensesWith camelCaseFields ''Progress
 
 -- | A target for some metric with a description.
-data Target = Target TargetValue TargetDesc String
+data Target = Target {
+    _targetIncrease    :: Bool
+  , _targetValue       :: MetricValue
+  , _targetDescription :: TargetDesc
+  , _targetDate        :: Date
+  }
   deriving (Eq, Ord, Read, Show)
-
--- |The different types of target.
-data TargetValue = NumTarget MetricValue Bool | BoolTarget Bool
-  deriving (Eq, Ord, Read, Show)
+makeLensesWith camelCaseFields ''Target
 
 -- | Targets for one (metric, region).
 data Targets = Targets {
@@ -128,3 +135,14 @@ data Database = Database {
   , _databaseReps     :: Map RepId Rep
   } deriving Show
 makeLensesWith camelCaseFields ''Database
+
+-- ** Helper functions on the data types.
+
+-- | A readable representation of a dimension.
+dimensionName :: Dimension -> DimensionName
+dimensionName (Dim' l m t _i _th _n _j) =
+  power' "m" l ++ power' "g" m ++ power' "s" t
+  where power _ 0 = ""
+        power s x = show s ++ "^" ++ show x
+        power' :: DimensionName -> Int -> DimensionName
+        power' s x = filter (/= '\"') (power s x)

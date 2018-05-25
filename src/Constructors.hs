@@ -1,6 +1,6 @@
 module Constructors where
 
--- ** Helpful constructors for the data types.
+-- * Helpful constructors for the data types.
 
 import           Control.Lens
 import qualified Data.Map                          as Map
@@ -39,22 +39,10 @@ targets :: Metric -> Region -> [Target] -> Targets
 targets m r = Targets 0 (r ^. owner) (m ^. ident) (r ^. ident)
 
 -- | Constructors for different types of target.
-targetIncrease m = Target $ NumTarget m True
-targetDecrease m = Target $ NumTarget m False
-targetBool     b = Target $ BoolTarget b
+targetIncrease = Target True
+targetDecrease = Target False
 
 -- | A database with no data.
 emptyDatabase :: Database
 emptyDatabase = Database 0 Map.empty Map.empty Map.empty Map.empty Map.empty Map.empty
-
--- ** Helper functions on the data types.
-
--- | A readable representation of a dimension.
-dimensionName :: Model.Dimension -> DimensionName
-dimensionName (Dim' l m t _i _th _n _j) =
-  power' "m" l ++ power' "g" m ++ power' "s" t
-  where power _ 0 = ""
-        power s x = show s ++ "^" ++ show x
-        power' :: DimensionName -> Int -> DimensionName
-        power' s x = filter (/= '\"') (power s x)
 
