@@ -48,10 +48,10 @@ instance DB Metric where
 -- | Add a new region to the database.
 instance DB Region where
   add newRegion' = do
-    regionId <- nextId
-    let newRegion = newRegion' & ident .~ regionId
+    newId <- nextId
+    let newRegion = newRegion' & ident .~ newId
     db <- get
-    put $ db & regions %~ Map.insert regionId newRegion
+    put $ db & regions %~ Map.insert (newRegion ^. name) newRegion
     pure newRegion
 
 -- | Add new progress to the database.
@@ -60,8 +60,8 @@ instance DB Progress where
     progressId <- nextId
     db <- get
     let newProgress = newProgress' & ident .~ progressId
-        oldRegion   = fromJust $ Map.lookup (newProgress ^. region) $ db ^. regions
-        newRegion   = oldRegion & progress %~ Set.insert progressId
+        newRegion   = fromJust (Map.lookup (newProgress ^. region) $ db ^. regions)
+                        & progress %~ Set.insert progressId
     put $ db
       & progress %~ Map.insert progressId newProgress
       & regions %~ Map.insert (newProgress ^. region) newRegion
@@ -73,8 +73,8 @@ instance DB Targets where
     targetsId <- nextId
     db <- get
     let newTargets = newTargets' & ident .~ targetsId
-        oldRegion  = fromJust $ Map.lookup (newTargets ^. region) $ db ^. regions
-        newRegion  = oldRegion & targets %~ Set.insert targetsId
+        newRegion  = fromJust (Map.lookup (newTargets ^. region) $ db ^. regions)
+                       & targets %~ Set.insert targetsId
     put $ db
       & targets %~ Map.insert targetsId newTargets
       & regions %~ Map.insert (newTargets ^. region) newRegion

@@ -74,7 +74,7 @@ instance Pretty Progress where
       " (metric: ", show $ u ^. metric, ")"
     , " (region: ", show $ u ^. region, ")"
     , " (owner: ", u ^. owner, ")"
-    , " ", pretty $ u ^. values
+    , " values: ", pretty $ u ^. values, ")"
     ]
 
 instance Pretty Target where
@@ -89,7 +89,7 @@ instance Pretty Targets where
       " (metric: ", show $ t ^. metric, ")"
     , " (region: ", show $ t ^. region, ")"
     , " (owner: ", t ^. owner, ")"
-    , " ", pretty $ t ^. values
+    , " (measurements: ", pretty $ t ^. values, ")"
     ]
 
 instance Pretty Rep where

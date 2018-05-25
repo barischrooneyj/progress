@@ -6,7 +6,8 @@ import           Control.Lens
 import           Data.DateTime             as T
 import qualified Data.Map                  as Map
 import qualified Data.Set                  as Set
-import           Numeric.Units.Dimensional as Dim
+import           Numeric.Units.Dimensional (HasDimension)
+import qualified Numeric.Units.Dimensional as Dim
 
 import           Model
 
@@ -15,12 +16,12 @@ user :: Username -> PasswordHash -> User
 user u = User u Nothing
 
 -- | Constructor for a metric with dimension (like m/s).
-metric :: HasDimension a => User -> MetricName -> a -> Model.Metric
-metric u mn d = Model.Metric 0 (u ^. username) mn (Left $ Dim.dimension d)
+metric :: HasDimension a => User -> MetricName -> a -> Metric
+metric u mn d = Metric 0 (u ^. username) mn (Left $ Dim.dimension d)
 
 -- | Constructor for a dimensionless metric (like percent).
-metric' :: User -> MetricName -> MetricSymbol -> Model.Metric
-metric' u mn d = Model.Metric 0 (u ^. username) mn (Right d)
+metric' :: User -> MetricName -> MetricSymbol -> Metric
+metric' u mn d = Metric 0 (u ^. username) mn (Right d)
 
 -- | Constructor for an empty region.
 region :: User -> RegionName -> Region
@@ -29,16 +30,16 @@ region u rn = Region 0 (u ^. username) rn Set.empty Set.empty [] Set.empty Set.e
 -- | Constructor for a region with a parent.
 region' :: User -> RegionName -> Region -> Region
 region' u rn r =
-  Region 0 (u ^. username) rn Set.empty Set.empty [] (Set.singleton $ r ^. ident) Set.empty
+  Region 0 (u ^. username) rn Set.empty Set.empty [] (Set.singleton $ r ^. name) Set.empty
 
 -- | Constructor for a region's progress in some metric.
 progress :: Metric -> Region -> [(MetricValue, (Integer, Int, Int))] -> Progress
-progress met rg ms = Progress 0 (rg ^. owner) (met ^. ident) (rg ^. ident) [] ms'
+progress met rg ms = Progress 0 (rg ^. owner) (met ^. ident) (rg ^. name) [] ms'
   where ms' = map (\(mv, (y, m, d)) -> (mv, T.fromGregorian' y m d)) ms
 
 -- | Constructor for a region's targets in some metric.
 targets :: Metric -> Region -> [Target] -> Targets
-targets m r = Targets 0 (r ^. owner) (m ^. ident) (r ^. ident)
+targets m r = Targets 0 (r ^. owner) (m ^. ident) (r ^. name)
 
 -- | Constructors for a target in Gregorian (y m d) time.
 target :: Bool -> MetricValue -> TargetDesc -> Integer -> Int -> Int -> Target

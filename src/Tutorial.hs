@@ -7,6 +7,7 @@ import qualified Numeric.Units.Dimensional.SIUnits as SI
 
 import qualified Constructors                      as C
 import           Database                          (DBOps, add, runDBOps)
+import           Model
 import           Pretty                            (prettyLn)
 
 -- | Pretty print the database after running the example below.
@@ -27,6 +28,7 @@ example = do
   germany <- add $ C.region' jeremy "Germany" world
   france  <- add $ C.region' gabriel "France" world
 
+  -- let y = key world :: RegionName
   -- | Some metrics, not connected to regions yet.
   co2        <- add $ C.metric gabriel "CO2 Emissions" (SI.liter Dim./ SI.second)
   plasticTax <- add $ C.metric' gabriel "Plastic Tax" "%"
