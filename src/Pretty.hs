@@ -1,12 +1,15 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE OverlappingInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Pretty where
 
 -- * Pretty printing typeclass and instances.
 
 import           Control.Lens
-import           Data.Foldable (Foldable)
-import qualified Data.Map      as Map
+import           Data.Foldable             (Foldable)
+import qualified Data.Map                  as Map
+import           Numeric.Units.Dimensional (Dimension' (..))
 
 import           Model
 
@@ -21,7 +24,24 @@ class Pretty a where
 instance (Foldable f, Pretty a) => Pretty (f a) where
   pretty xs = "[\n" ++ concatMap (\x -> "  " ++ pretty x ++ ",\n") xs ++ "]"
 
+instance (Pretty a, Pretty b) => Pretty (Either a b) where
+  pretty (Left x)  = pretty x
+  pretty (Right x) = pretty x
+
+instance Pretty String where
+  pretty = id
+
 -- ** Model instances.
+
+-- | A readable representation of a dimension like m^3.
+instance Pretty Dimension where
+  pretty (Dim' l m t _i _th _n _j) = unwords [
+      power' "m" l, power' "g" m, power' "s" t
+    ]
+    where power _ 0 = ""
+          power s x = show s ++ "^" ++ show x
+          power' :: DimensionName -> Int -> DimensionName
+          power' s x = filter (`notElem` ['\"', ' ']) (power s x)
 
 instance Pretty User where
   pretty u = concat [
@@ -33,6 +53,7 @@ instance Pretty Metric where
   pretty u = concat [
       u ^. name
     , " (owner: ", u ^. owner, ")"
+    , " (dim: ", pretty $ u ^. dim, ")"
     ]
 
 instance Pretty Region where

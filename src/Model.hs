@@ -25,7 +25,7 @@ module Model where
 import           Control.Lens
 import           Data.Map                  (Map)
 import           Data.Set                  (Set)
-import           Numeric.Units.Dimensional (Dimension' (Dim'))
+import           Numeric.Units.Dimensional (Dimension' (..))
 
 -- ** The data types.
 
@@ -135,14 +135,3 @@ data Database = Database {
   , _databaseReps     :: Map RepId Rep
   } deriving Show
 makeLensesWith camelCaseFields ''Database
-
--- ** Helper functions on the data types.
-
--- | A readable representation of a dimension.
-dimensionName :: Dimension -> DimensionName
-dimensionName (Dim' l m t _i _th _n _j) =
-  power' "m" l ++ power' "g" m ++ power' "s" t
-  where power _ 0 = ""
-        power s x = show s ++ "^" ++ show x
-        power' :: DimensionName -> Int -> DimensionName
-        power' s x = filter (/= '\"') (power s x)

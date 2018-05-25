@@ -27,6 +27,7 @@ dependencies:
 - lens
 - mtl
 - pretty-simple
+- tostring
 
 library:
   source-dirs: src
