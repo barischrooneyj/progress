@@ -15,7 +15,6 @@ module Model where
 -- ** TODO: Suggest metrics for region via sibling regions.
 -- ** TODO: Get progress of a region in terms of children.
 -- ** TODO: Get progress of other regions on same metric.
--- ** TODO: Better date input format.
 -- ** TODO: Correct Eq and Ord instances.
 -- ** TODO: Handle error cases in 'add'.
 -- ** TODO: Add lookup methods.
@@ -23,18 +22,19 @@ module Model where
 -- ** TODO: Add HTTP API.
 
 import           Control.Lens
+import qualified Data.DateTime             as T
 import           Data.Map                  (Map)
 import           Data.Set                  (Set)
 import           Numeric.Units.Dimensional (Dimension' (..))
 
 -- ** The data types.
 
-type Date          = String
+type Date          = T.DateTime
 type Dimension     = Dimension'
 type DimensionName = String
 type Email         = String
 type ID            = Integer
-type Measurement   = (MetricValue, Seconds)
+type Measurement   = (MetricValue, Date)
 type MetricId      = ID
 type MetricName    = String
 type MetricSymbol  = String
@@ -46,7 +46,6 @@ type RegionId      = ID
 type RegionName    = String
 type RepId         = ID
 type RepName       = String
-type Seconds       = Integer
 type TargetDesc    = String
 type TargetsId     = ID
 type Username      = String

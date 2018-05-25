@@ -7,6 +7,7 @@ module Pretty where
 -- * Pretty printing typeclass and instances.
 
 import           Control.Lens
+import           Data.DateTime             as T
 import           Data.Foldable             (Foldable)
 import qualified Data.Map                  as Map
 import           Numeric.Units.Dimensional (Dimension' (..))
@@ -24,16 +25,21 @@ class Pretty a where
 instance (Foldable f, Pretty a) => Pretty (f a) where
   pretty xs = "[\n" ++ concatMap (\x -> "  " ++ pretty x ++ ",\n") xs ++ "]"
 
+-- | We can also handle Either values.
 instance (Pretty a, Pretty b) => Pretty (Either a b) where
   pretty (Left x)  = pretty x
   pretty (Right x) = pretty x
 
+-- | As a fallback we can just use a string.
 instance Pretty String where
   pretty = id
 
 -- ** Model instances.
 
--- | A readable representation of a dimension like m^3.
+instance Pretty Measurement where
+  pretty (mv, d) = show mv ++ " on " ++ show (T.toGregorian' d)
+
+-- | A short representation like m^3 s^-1.
 instance Pretty Dimension where
   pretty (Dim' l m t _i _th _n _j) = unwords [
       power' "m" l, power' "g" m, power' "s" t
@@ -68,13 +74,14 @@ instance Pretty Progress where
       " (metric: ", show $ u ^. metric, ")"
     , " (region: ", show $ u ^. region, ")"
     , " (owner: ", u ^. owner, ")"
-    , " ", show $ u ^. values
+    , " ", pretty $ u ^. values
     ]
 
 instance Pretty Target where
   pretty u = concat [
       if u ^. increase then "Above" else "Below", " ", show $ u ^. value
-    , " by ", show $ u ^. date
+    , " by ", show $ T.toGregorian' $ u ^. date
+    , " (desc: ", show $ u ^.description, ")"
     ]
 
 instance Pretty Targets where

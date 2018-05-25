@@ -3,9 +3,10 @@ module Constructors where
 -- * Helpful constructors for the data types.
 
 import           Control.Lens
-import qualified Data.Map                          as Map
-import qualified Data.Set                          as Set
-import           Numeric.Units.Dimensional         as Dim
+import           Data.DateTime             as T
+import qualified Data.Map                  as Map
+import qualified Data.Set                  as Set
+import           Numeric.Units.Dimensional as Dim
 
 import           Model
 
@@ -13,11 +14,11 @@ import           Model
 user :: Username -> PasswordHash -> User
 user u = User u Nothing
 
--- | Constructor for a metric.
+-- | Constructor for a metric with dimension (like m/s).
 metric :: HasDimension a => User -> MetricName -> a -> Model.Metric
 metric u mn d = Model.Metric 0 (u ^. username) mn (Left $ Dim.dimension d)
 
--- | Constructor for a dimensionless metric.
+-- | Constructor for a dimensionless metric (like percent).
 metric' :: User -> MetricName -> MetricSymbol -> Model.Metric
 metric' u mn d = Model.Metric 0 (u ^. username) mn (Right d)
 
@@ -25,22 +26,30 @@ metric' u mn d = Model.Metric 0 (u ^. username) mn (Right d)
 region :: User -> RegionName -> Region
 region u rn = Region 0 (u ^. username) rn Set.empty Set.empty [] Set.empty Set.empty
 
--- | Constructor for a region with parent.
+-- | Constructor for a region with a parent.
 region' :: User -> RegionName -> Region -> Region
 region' u rn r =
   Region 0 (u ^. username) rn Set.empty Set.empty [] (Set.singleton $ r ^. ident) Set.empty
 
--- | Constructor for some progress.
-progress :: Metric -> Region -> [Measurement] -> Progress
-progress m r = Progress 0 (r ^. owner) (m ^. ident) (r ^. ident) []
+-- | Constructor for a region's progress in some metric.
+progress :: Metric -> Region -> [(MetricValue, (Integer, Int, Int))] -> Progress
+progress met rg ms = Progress 0 (rg ^. owner) (met ^. ident) (rg ^. ident) [] ms'
+  where ms' = map (\(mv, (y, m, d)) -> (mv, T.fromGregorian' y m d)) ms
 
--- | Constructor for a goal with given targets.
+-- | Constructor for a region's targets in some metric.
 targets :: Metric -> Region -> [Target] -> Targets
 targets m r = Targets 0 (r ^. owner) (m ^. ident) (r ^. ident)
 
--- | Constructors for different types of target.
-targetIncrease = Target True
-targetDecrease = Target False
+-- | Constructors for a target in Gregorian (y m d) time.
+target :: Bool -> MetricValue -> TargetDesc -> Integer -> Int -> Int -> Target
+target increase value description y m d = Target {
+    _targetIncrease = increase
+  , _targetValue = value
+  , _targetDescription = description
+  , _targetDate = T.fromGregorian' y m d
+  }
+targetDecrease = target False
+targetIncrease = target True
 
 -- | A database with no data.
 emptyDatabase :: Database
