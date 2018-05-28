@@ -1,7 +1,7 @@
 module Main where
 
-import           DatabaseClass (example, run)
-import           Tutorial      (runExample)
+import           Database.Store.Tutorial (example, run)
+import           Tutorial                (runExample)
 
 main :: IO ()
 main = do

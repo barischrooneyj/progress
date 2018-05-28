@@ -1,0 +1,3 @@
+[submodule "simple-store"]
+	path = simple-store
+	url = git@github.com:barischrooneyj/simple-store

@@ -1,6 +1,6 @@
 module Constructors where
 
--- * Helpful constructors for the data types.
+-- * Helpful constructors for the data types in Model.hs.
 
 import           Control.Lens
 import           Data.DateTime             as T
@@ -24,13 +24,12 @@ metric' :: User -> MetricName -> MetricSymbol -> Metric
 metric' u mn d = Metric 0 (u ^. username) mn (Right d)
 
 -- | Constructor for an empty region.
-region :: User -> RegionName -> Region
-region u rn = Region 0 (u ^. username) rn Set.empty Set.empty [] Set.empty Set.empty
+region' :: User -> RegionName -> Region
+region' u rn = Region 0 (u ^. username) rn Set.empty Set.empty [] Set.empty Set.empty
 
 -- | Constructor for a region with a parent.
-region' :: User -> RegionName -> Region -> Region
-region' u rn r =
-  Region 0 (u ^. username) rn Set.empty Set.empty [] (Set.singleton $ r ^. name) Set.empty
+region :: User -> RegionName -> Region -> Region
+region u rn r = region' u rn & parents .~ Set.singleton (r ^. name)
 
 -- | Constructor for a region's progress in some metric.
 progress :: Metric -> Region -> [(MetricValue, (Integer, Int, Int))] -> Progress
