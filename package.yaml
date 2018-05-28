@@ -29,6 +29,7 @@ dependencies:
 - mtl
 - pretty-simple
 - tostring
+- transformers
 
 library:
   source-dirs: src
