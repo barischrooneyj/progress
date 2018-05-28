@@ -17,7 +17,7 @@ module Model where
 -- * Modeling the progress and targets of regions.
 --
 -- | From reading through the data types and their equality instances you will
--- notice that the 'Region' is the core data type. Everything is connected to a
+-- notice that the 'Region' is a core data type. Everything is connected to a
 -- region and they can be connected to each other.
 
 -- ** TODO: Handle error cases in 'add'.
@@ -31,23 +31,20 @@ module Model where
 
 import           Control.Lens
 import qualified Data.DateTime             as T
-import Data.Maybe
 import           Data.Map                  (Map)
-import qualified Data.Map as Map
 import           Data.Ord
 import           Data.Set                  (Set)
-import           GHC.Exts                  (Constraint)
 import           Numeric.Units.Dimensional (Dimension' (..))
 
 -- ** The data types.
 
 -- | First the numerous type aliases!
-type Date          = T.DateTime
+type DateTime      = T.DateTime
 type Dimension     = Dimension'
 type DimensionName = String
 type Email         = String
 type ID            = Integer
-type Measurement   = (MetricValue, Date)
+type Measurement   = (MetricValue, DateTime)
 type MetricId      = ID
 type MetricName    = String
 type MetricSymbol  = String
@@ -107,27 +104,6 @@ data Region = Region {
   } deriving (Read, Show)
 makeLensesWith camelCaseFields ''Region
 
--- |TEST----------------------------------------------------------------------------|
-
--- | Has a key for doing comparisons.
--- instance HasKey a e => Eq a where
---   (==) = compKey
-
--- class HasKey a => DBGet a where
-
-
--- instance (Eq e, HasKey a e) => Eq a where
-  -- a == b =
-
-
--- | Regions are compared by name.
--- instance Eq Region where
---   a == b = a <= b && a >= b
--- instance Ord Region where
---   compare = comparing _regionName
-
--- |--------------------------------------------------------------------------------|
-
 -- | Measurements for one (metric, region).
 data Progress = Progress {
     _progressIdent  :: ProgressId
@@ -150,7 +126,7 @@ data Target = Target {
     _targetIncrease    :: Bool
   , _targetValue       :: MetricValue
   , _targetDescription :: TargetDesc
-  , _targetDate        :: Date
+  , _targetDate        :: DateTime
   -- | Compared by all fields.
   } deriving (Eq, Ord, Read, Show)
 makeLensesWith camelCaseFields ''Target

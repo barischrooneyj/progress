@@ -25,6 +25,7 @@ dependencies:
 - datetime
 - dimensional
 - lens
+- monad-extras
 - mtl
 - pretty-simple
 - tostring
