@@ -2,15 +2,22 @@
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE FunctionalDependencies     #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
 
 module DatabaseClass where
 
--- ** TODO: Consider reducing constraint from State to Reader.
--- ** TODO: Add monadic lens operators for Store.
--- ** TODO: Do not require user to write Entity, only Identifiable.
--- ** TODO: Factor out fullKey function.
+-- ** Experimental code for helping write database instances.
 
+-- ** TODO: Consider reducing constraint from State to Reader.
+-- ** TODO: Add monadic lens operators to Store class.
+-- ** TODO: Only require user to write one instance per data type.
+-- ** TODO: Factor out fullKey in Store instance.
+-- ** TODO: Can we remove monoid constraint? We only want mempty.
+-- ** TODO: Factor out the monad constraints in Store.
+
+import qualified Control.Lens              as L
+import           Control.Lens              (makeLensesWith, camelCaseFields)
 import           Control.Monad             (MonadPlus, mzero)
 import qualified Control.Monad.State       as S
 import           Control.Monad.State       (StateT, MonadState)
@@ -23,20 +30,27 @@ import           Data.Monoid               (mempty)
 import           Data.Typeable             (Typeable)
 import qualified Data.Typeable             as Type
 
--- | An Identifiable value can be uniquely determined among terms of other
--- types. The Ord constraint is required to identify within the same type, and
--- Typeable to distinguish from other types.
+-- | An 'Identifiable' is uniquely determined among terms of arbitrary type.
+--
+-- The 'Ord' constraint is required to identify within the same type, and
+-- 'Typeable' is to distinguish from other types.
 class (Ord k, Typeable a) => Identifiable a k | a -> k where
   key :: a -> k
   table :: a -> String
   table = const $ show $ Type.typeOf (undefined::a)
 
--- | To persist a term we also need to serialize and de-serialize it.
-class (Identifiable a k, Read a, Show a, Show k) => Entity a k
+-- | To store a term we also need to serialize and de-serialize it.
+class (Identifiable a k, Read a, Show a, Show k) => Storable a k
 
--- | A Store can get/set/modify entities. It is like a monadic lens.
--- NOTE: This is just a simple key-value store for now.
-class (Entity a k, MonadPlus m, MonadState db m) => Store db m a k where
+-- | A 'Store' can get/set/over entities. Think of it as a monadic lens.
+--
+-- Currently a 'Store' is just a simple key-value store, operating at the
+-- granularity of single records of type 'a'. I would like to generate similar
+-- lens functionality at the granularity of each field of 'a', similar to
+-- 'L.makeLenses'. Currently the function 'over' can be used to perform a
+-- monadic get, apply a modification, and then monadic set the result. I hope
+-- that eventually our monadic lenses and standard lenses have the same API.
+class (Storable a k, MonadPlus m, MonadState db m) => IsStore db m a k where
   get  :: k             -> m a
   set  :: a             -> m a
   over :: k -> (a -> a) -> m a
@@ -44,27 +58,22 @@ class (Entity a k, MonadPlus m, MonadState db m) => Store db m a k where
     row <- get k
     set (fa row)
 
--- | Run the given store operations.
+-- | We provide a monad to run 'Store' operations.
+-- Other monads can be used if they satisfy certain constraints.
+type Store m a = StateT m (MaybeT IO) a
+
+-- | ..and a method of running the monad.
 runStore :: Monoid m => StateT m (MaybeT IO) a -> IO (Maybe a)
 runStore x = runMaybeT $ fst <$> S.runStateT x mempty
 
--- | A data type we want to persist.
-data User = User {
-    _userUsername :: String
-  , _userPwdHash  :: String
-  } deriving (Read, Show, Typeable)
+-- ** A 'Store' implementation based in-memory.
 
--- | The User must be an Entity.
-instance Entity User String
-instance Identifiable User String where
-  key = _userUsername
-
--- | Our in-memory database.
-newtype MapDB = MapDB { _databaseMap :: Map String String }
+-- | An in-memory store based on Data.Map.
+newtype InMemStore = InMemStore { _databaseMap :: Map String String }
   deriving (Show, Monoid)
 
--- | The in-memory database uses Data.Map and Read/Show instances.
-instance (Entity a k, MonadPlus m, MonadState MapDB m) => Store MapDB m a k where
+-- | The 'Store' instance for the in-memory store 'MemStore''.
+instance (Storable a k, MonadPlus m, MonadState InMemStore m) => IsStore InMemStore m a k where
   get k = do
     db <- _databaseMap <$> S.get
     liftMaybe $ read <$> Map.lookup (table (undefined::a) ++ show k) db
@@ -74,19 +83,32 @@ instance (Entity a k, MonadPlus m, MonadState MapDB m) => Store MapDB m a k wher
     if   fullKey `Map.member` db
     then mzero
     else do
-      S.put $ MapDB $ Map.insert fullKey (show a) db
+      S.put $ InMemStore $ Map.insert fullKey (show a) db
       pure a
 
--- | Choosing our database implementation.
-type MyDb a = StateT MapDB (MaybeT IO) a
-runMyDb :: MyDb a -> IO (Maybe a)
-runMyDb = runStore
+-- | Useful type aliases for the in-memory store 'MemStore'.
+type InMemStore' a = Store InMemStore a
+runInMemStore :: InMemStore' a -> IO (Maybe a)
+runInMemStore = runStore
 
-example :: MyDb User
+-- ** Library user code.
+
+-- | A data type we want to store.
+data User = User {
+    _userUsername :: String
+  , _userPwdHash  :: String
+  } deriving (Read, Show, Typeable)
+makeLensesWith camelCaseFields ''User
+instance Storable User String
+instance Identifiable User String where
+  key = _userUsername
+
+-- | Decide on our 'Store' implementation.
+type OurStore a = InMemStore' a
+run = runInMemStore
+
+example :: OurStore User
 example = do
-  db <- set (User "John" "!@£$")
+  db <- set $ User "John" "1234"
   liftIO $ print db
   get "John"
-
-run :: IO (Maybe User)
-run = runMyDb example

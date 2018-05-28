@@ -1,9 +1,11 @@
 module Main where
 
-import           DatabaseClass (run)
+import           DatabaseClass (example, run)
 import           Tutorial      (runExample)
 
 main :: IO ()
 main = do
+  -- | Tutorial code.
   runExample
-  print =<< run
+  -- | Database experiment.
+  print =<< run example
