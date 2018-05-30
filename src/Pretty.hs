@@ -59,7 +59,7 @@ instance Pretty Metric where
   pretty u = concat [
       u ^. name
     , " (owner: ", u ^. owner, ")"
-    , " (dim: ", pretty $ u ^. dim, ")"
+    , " (dim: ", pretty $ u ^. dimension, ")"
     ]
 
 instance Pretty Region where

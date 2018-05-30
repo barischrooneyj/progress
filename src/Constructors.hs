@@ -16,7 +16,7 @@ user :: Username -> PasswordHash -> User
 user u = User u Nothing
 
 -- | Constructor for a metric with dimension (like m/s).
-metric :: HasDimension a => User -> MetricName -> a -> Metric
+metric :: Dim.HasDimension a => User -> MetricName -> a -> Metric
 metric u mn d = Metric 0 (u ^. username) mn (Left $ Dim.dimension d)
 
 -- | Constructor for a dimensionless metric (like percent).

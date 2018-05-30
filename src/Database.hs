@@ -2,12 +2,20 @@ module Database where
 
 -- * Database interaction functions.
 
-import           Control.Lens
-import           Control.Monad.State (State, evalState, get, put)
-import qualified Data.Map            as Map
-import           Data.Maybe          (fromJust)
-import qualified Data.Set            as Set
+-- | Here are instances of a 'DB' class for each data type in our model. This
+-- class is responsible for consistency in the database. We would like to derive
+-- this consistent behaviour derived from our data types. This is being explored
+-- in the simple-store package.
 
+import           Control.Lens
+import           Control.Monad.State           (State, evalState, get, put)
+import qualified Data.Map                      as Map
+import           Data.Maybe                    (fromJust)
+import qualified Data.Set                      as Set
+
+import qualified Database.Store.Class          as S
+import           Database.Store.Store.InMemory (InMemoryStoreIO,
+                                                runInMemoryStore)
 import           Model
 
 -- | Currently we use the State monad as an in-memory database.
@@ -24,8 +32,20 @@ nextId = do
 runDBOps :: Database -> DBOps a -> Database
 runDBOps database ops = evalState (ops >> get) database
 
+type Store a = InMemoryStoreIO a
+run = runInMemoryStore
+
+-- | Just writing these instance temporarily, to see how they compare with the
+-- 'DB' class below, and see what is missing.
+addUser :: User -> Store User
+addUser = S.get
+addMetric :: Metric -> Store Metric
+addMetric = S.get
+addRegion :: Region -> Store Region
+addRegion = S.get
+
 -- | Any type which implements this typeclass can be modified in the database.
--- These functions are responsible for the integrity of the database.
+-- These functions are responsible for the consistency of the database.
 class DB a where
   add :: a -> DBOps a
 
