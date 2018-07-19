@@ -1,3 +1,8 @@
+{-# OPTIONS_GHC -fno-warn-missing-fields #-}
+
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE FlexibleInstances      #-}
+
 module Database where
 
 -- * Database interaction functions.
@@ -35,14 +40,19 @@ runDBOps database ops = evalState (ops >> get) database
 type Store a = InMemoryStoreIO a
 run = runInMemoryStore
 
--- | Just writing these instance temporarily, to see how they compare with the
--- 'DB' class below, and see what is missing.
-addUser :: User -> Store User
-addUser = S.get
-addMetric :: Metric -> Store Metric
-addMetric = S.get
-addRegion :: Region -> Store Region
-addRegion = S.get
+{-
+
+-- Regarding a type 'a' and key 'k'.
+
+   Identifiable a k -- Has a table key and row key.
+
+=> Storable     a k -- Key and value are read and show-able.
+
+=> Consistent   a k -- Tables are kept in sync during operations.
+
+=> Deep         a k -- Each field of 'a' is also 'Consistent'.
+
+-}
 
 -- | Any type which implements this typeclass can be modified in the database.
 -- These functions are responsible for the consistency of the database.
@@ -60,10 +70,12 @@ instance DB User where
 instance DB Metric where
   add newMetric' = do
     metricId <- nextId
-    let newMetric = newMetric' & ident .~ metricId
+    -- let newMetric = newMetric' & ident .~ metricId
     db <- get
-    put $ db & metrics %~ Map.insert metricId newMetric
-    pure newMetric
+    -- put $ db & metrics %~ Map.insert metricId newMetric
+    put $ db & metrics %~ Map.insert metricId newMetric'
+    -- pure newMetric
+    pure newMetric'
 
 -- | Add a new region to the database.
 instance DB Region where

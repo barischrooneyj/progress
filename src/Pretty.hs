@@ -1,10 +1,8 @@
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE OverlappingInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Pretty where
 
--- * Pretty printing typeclass and instances.
+-- * Pretty printing class, aimed at command line usage..
 
 import           Control.Lens
 import           Data.DateTime             as T
@@ -14,15 +12,14 @@ import           Numeric.Units.Dimensional (Dimension' (..))
 
 import           Model
 
--- | The pretty printing type class. The aim is easily interpret-able output for
--- the command line.
+-- | Our pretty printing type class.
 class Pretty a where
   pretty :: a -> String
   prettyLn :: a -> IO ()
   prettyLn = putStrLn . pretty
 
 -- | Any foldable of pretty things is also a foldable.
-instance (Foldable f, Pretty a) => Pretty (f a) where
+instance {-# OVERLAPPABLE #-} (Foldable f, Pretty a) => Pretty (f a) where
   pretty xs = "[\n" ++ concatMap (\x -> "  " ++ pretty x ++ ",\n") xs ++ "]"
 
 -- | We can also handle Either values.
