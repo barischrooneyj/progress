@@ -1,6 +1,7 @@
 module Main where
 
-import           Tutorial (runExample)
+import           Control.Monad (void)
+import           Tutorial      (runExample)
 
 main :: IO ()
-main = runExample
+main = void runExample

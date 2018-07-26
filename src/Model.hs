@@ -131,7 +131,7 @@ instance Identifiable Progress ProgressKey where
   key p = (p ^. metric, p ^.region)
 instance Storable Progress ProgressKey
 instance Consistent Progress ProgressKey where
-  onAdd = [updateRegion]
+  onAdd = const $ [updateRegion]
     where updateRegion = Update (\a ->
             (a ^. region, \(b :: Region) -> b & progress %~ Set.insert (a ^. ident)))
 
@@ -159,6 +159,7 @@ makeLensesWith camelCaseFields ''Targets
 instance Identifiable Targets TargetsKey where
   key t = (t ^. metric, t ^.region)
 instance Storable Targets TargetsKey
+instance Consistent Targets TargetsKey
 
 -- | A contactable representative.
 data Rep = Rep {

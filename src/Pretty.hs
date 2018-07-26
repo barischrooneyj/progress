@@ -1,37 +1,57 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiWayIf        #-}
 
 module Pretty where
 
 -- * Pretty printing class, aimed at command line usage..
 
 import           Control.Lens
-import           Data.DateTime             as T
-import           Data.Foldable             (Foldable)
-import qualified Data.Map                  as Map
-import           Numeric.Units.Dimensional (Dimension' (..))
+import           Data.DateTime                 as T
+import           Data.Foldable                 (Foldable)
+import qualified Data.Map                      as Map
+import           Data.Maybe                    (fromJust, isJust)
+import           Database.Store.Store.InMemory (InMemoryStore' (..))
+import           Numeric.Units.Dimensional     (Dimension' (..))
+import           Text.Read                     (readMaybe)
 
 import           Model
 
 -- | Our pretty printing type class.
 class Pretty a where
+  -- | A pretty representation of a type.
   pretty :: a -> String
+  pretty = prettyN 0
+  -- | Pretty with given indentation.
+  prettyN :: Int -> a -> String
+  prettyN n a = sn n ++ pretty a
+  -- | Pretty print to standard out.
   prettyLn :: a -> IO ()
   prettyLn = putStrLn . pretty
 
--- | Any foldable of pretty things is also a foldable.
+-- | Given indentation w/wo newline.
+sn n = replicate n ' '
+ln n = "\n" ++ sn n
+
+-- * Pretty instances of common types.
+
+-- | Any 'Foldable' containing 'Pretty' things can also be 'Pretty'.
 instance {-# OVERLAPPABLE #-} (Foldable f, Pretty a) => Pretty (f a) where
-  pretty xs = "[\n" ++ concatMap (\x -> "  " ++ pretty x ++ ",\n") xs ++ "]"
+  prettyN n xs = concat [
+      sn n ++ "["
+    , concatMap (\x -> "\n" ++ prettyN (n+2) x ++ ",") xs
+    , ln n ++ "]\n"
+    ]
 
--- | We can also handle Either values.
+-- | We can also make 'Either' values pretty.
 instance (Pretty a, Pretty b) => Pretty (Either a b) where
-  pretty (Left x)  = pretty x
-  pretty (Right x) = pretty x
+  prettyN n (Left x)  = prettyN n x
+  prettyN n (Right x) = prettyN n x
 
--- | As a fallback we can just use a string.
+-- | We can always just print a string.
 instance Pretty String where
-  pretty = id
+  prettyN n a = sn n ++ a
 
--- ** Model instances.
+-- ** Pretty instances for our model types.
 
 instance Pretty Measurement where
   pretty (mv, d) = show mv ++ " on " ++ show (T.toGregorian' d)
@@ -47,61 +67,70 @@ instance Pretty Dimension where
           power' s x = filter (`notElem` ['\"', ' ']) (power s x)
 
 instance Pretty User where
-  pretty u = concat [
-      u ^. username
-    , " (home: ", show $ u ^. home, ")"
+  prettyN n u = concat [
+      sn n     ++ "User: " ++ u ^. username
+    , ln (n+2) ++ "(home: ", show $ u ^. home, ")"
     ]
 
 instance Pretty Metric where
-  pretty u = concat [
-      u ^. name
-    , " (owner: ", u ^. owner, ")"
-    , " (dim: ", pretty $ u ^. dimension, ")"
+  prettyN n u = concat [
+      sn n     ++ "Metric: " ++ u ^. name
+    , ln (n+2) ++ "(owner: ", u ^. owner, ")"
+    , ln (n+2) ++ "(dim: ", prettyN n $ u ^. dimension, ")"
     ]
 
 instance Pretty Region where
-  pretty u = concat [
-      u ^. name
-    , " (owner: ", u ^. owner, ")"
-    , " (parents: ", show $ u ^. parents, ")"
+  prettyN n r = concat [
+      sn n     ++ "Region: " ++ r ^. name
+    , ln (n+2) ++ "(owner: ", r ^. owner, ")"
+    , ln (n+2) ++ "(parents: ", show $ r ^. parents, ")"
     ]
 
 instance Pretty Progress where
-  pretty u = concat [
-      " (metric: ", show $ u ^. metric, ")"
-    , " (region: ", show $ u ^. region, ")"
-    , " (owner: ", u ^. owner, ")"
-    , " values: ", pretty $ u ^. values, ")"
+  prettyN n p = concat [
+      sn n     ++ "Progress for: (" ++ fst (p ^. metric) ++ "," ++ p ^. region ++ ")"
+    , ln (n+2) ++ "(owner: ", p ^. owner, ")"
+    , ln (n+2) ++ "(values: ", prettyN (n+2) $ p ^. values, ")"
     ]
 
 instance Pretty Target where
-  pretty u = concat [
-      if u ^. increase then "Above" else "Below", " ", show $ u ^. value
+  prettyN n u = concat [
+      sn n ++ "Target:" ++ if u ^. increase then "increase" else "decrease"
+    , " to ", show $ u ^. value
     , " by ", show $ T.toGregorian' $ u ^. date
-    , " (desc: ", show $ u ^.description, ")"
+    , ln (n+2) ++ "(desc: ", show $ u ^.description, ")"
     ]
 
 instance Pretty Targets where
-  pretty t = concat [
-      " (metric: ", show $ t ^. metric, ")"
-    , " (region: ", show $ t ^. region, ")"
-    , " (owner: ", t ^. owner, ")"
-    , " (measurements: ", pretty $ t ^. values, ")"
+  prettyN n t = concat [
+      sn n     ++ "Targets for: (" ++ show (t ^. metric) ++ "," ++ show (t ^. region) ++ ")"
+    , ln (n+2) ++ "owner: ", t ^. owner
+    , ln (n+2) ++ "values: ", prettyN (n+4) $ t ^. values
     ]
 
 instance Pretty Rep where
-  pretty r = concat [
-      r ^. name
-    , " (email: ", show $ r ^. email, ")"
-    , " (phone: ", show $ r ^. phone, ")"
+  prettyN n r = concat [
+      sn n     ++ r ^. name
+    , ln (n+2) ++ "(email: ", show $ r ^. email, ")"
+    , ln (n+2) ++ "(phone: ", show $ r ^. phone, ")"
     ]
 
-instance Pretty Database where
-  pretty d = concat [
-      " (Users: ", pretty $ Map.elems $ d ^. users, ")"
-    , " (Metrics: ", pretty $ Map.elems $ d ^. metrics, ")"
-    , " (Regions: ", pretty $ Map.elems $ d ^. regions, ")"
-    , " (Progress: ", pretty $ Map.elems $ d ^. progress, ")"
-    , " (Targets: ", pretty $ Map.elems $ d ^. targets, ")"
-    , " (Reps: ", pretty $ Map.elems $ d ^. reps, ")"
-    ]
+-- | A simple way to show the entire database without looking at types.
+instance Pretty InMemoryStore' where
+  prettyN n (InMemoryStore' m) =
+    prettyN n $ map (prettyStoreValue n) $ Map.elems m
+
+-- | Attempt to parse the given string as each possible type until success, then
+-- return the pretty string of the parsed value.
+prettyStoreValue :: Int -> String -> String
+prettyStoreValue n s =
+  if | isJust (readMaybe s :: Maybe Metric)
+       -> prettyN n (fromJust $ readMaybe s :: Metric)
+     | isJust (readMaybe s :: Maybe Region)
+       -> prettyN n (fromJust $ readMaybe s :: Region)
+     | isJust (readMaybe s :: Maybe Progress)
+       -> prettyN n (fromJust $ readMaybe s :: Progress)
+     | isJust (readMaybe s :: Maybe Targets )
+       -> prettyN n (fromJust $ readMaybe s :: Targets)
+     | isJust (readMaybe s :: Maybe User)
+       -> prettyN n (fromJust $ readMaybe s :: User)
