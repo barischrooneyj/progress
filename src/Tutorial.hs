@@ -1,6 +1,17 @@
 module Tutorial where
 
--- * Example database usage (see 'example' below).
+-- * Example database usage, see the 'example' below for a block of operations.
+--
+-- | To interact with the database interactively in GHCI:
+--
+--   * Open GHCI with 'stack ghci progress:exe:progress-exe' or other.
+--   * Load this tutorial with all its useful imports, ':l src/Tutorial.hs'.
+--   * Create a database, run the example below, and print the database:
+--       let db = Just mempty
+--       db <- run example $ fromJust db'.
+--       prettyLn db.
+--   * Or run an individual command:
+--       db <- run (Db.set $ C.user "geoff" "geoffspasword") $ fromJust db
 
 import           Control.Monad                     (void)
 import           Control.Monad.IO.Class            (liftIO)
@@ -20,9 +31,10 @@ import           Pretty                            (prettyLn)
 -- | Pretty print the database after running the example below.
 runExample :: IO ()
 runExample = do
-  let db = mempty
+  let db = Just mempty
   -- | Run the example twice on the same database.
-  db <- fromJust <$> run example db
+  db <- run example $ fromJust db
+  run example $ fromJust db
   prettyLn db
 
 -- | We are using an in-memory non-persisted data store.
