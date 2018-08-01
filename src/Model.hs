@@ -12,14 +12,10 @@ module Model where
 -- Everything is connected to a region, and they can be connected to each other.
 -- Even though the term region invokes ideas of a physical region, the idea is
 -- more broad than that. A region in this model could be quite abstract, perhaps
--- most generally just a set of grouped issues/targets. Regions have 'Targets'
--- and the 'Progress' they have made towards those targets.
+-- most generally considered as a set of grouped issues/targets. Regions have
+-- 'Targets' and the 'Progress' they have made towards those targets.
 
--- ** TODO: Handle error cases in 'add'.
--- ** TODO: Add lookup methods.
--- ** TODO: Add physical database, perhaps via Groundhog.
 -- ** TODO: Add HTTP API.
-
 -- ** TODO: Suggest metrics for region via sibling regions.
 -- ** TODO: Get progress of a region in terms of children.
 -- ** TODO: Get progress of other regions on same metric.
@@ -39,7 +35,7 @@ import           Database.Store.Class      (Consistent)
 
 -- ** The data types.
 
--- | First the numerous type aliases!
+-- | First our many type aliases!
 type DateTime        = T.DateTime
 type Dimension       = Dimension'
 type DimensionName   = String
@@ -85,7 +81,7 @@ instance Consistent User Username
 data Metric = Metric {
     _metricOwner     :: Username
   , _metricName      :: MetricName
-  , _metricDimension :: Either Dimension MetricSymbol
+  , _metricDimension :: MetricDimension
   } deriving (Read, Show)
 
 makeLensesWith camelCaseFields ''Metric
@@ -133,7 +129,7 @@ instance Storable Progress ProgressKey
 instance Consistent Progress ProgressKey where
   onAdd = const [updateRegion]
     where updateRegion = Update (\a ->
-            -- | Update a single 'Region', adding a reference to the added 'Progress'.
+            -- | Add a reference to a 'Region' about this 'Progress'.
             ([a ^. region], \(b :: Region) -> b & progress %~ Set.insert (a ^. ident)))
 
 -- | A target for some metric with a description.
@@ -176,16 +172,3 @@ makeLensesWith camelCaseFields ''Rep
 instance Identifiable Rep RepKey where
   key r = (r ^. name, r ^.region)
 instance Storable Rep RepKey
-
--- | Each field is like a table in a database.
-data Database = Database {
-    _databaseIdent    :: ID
-  , _databaseUsers    :: Map Username User
-  , _databaseMetrics  :: Map MetricId Metric
-  , _databaseRegions  :: Map RegionName Region
-  , _databaseProgress :: Map ProgressId Progress
-  , _databaseTargets  :: Map TargetsId Targets
-  , _databaseReps     :: Map RepId Rep
-  } deriving Show
-
-makeLensesWith camelCaseFields ''Database
