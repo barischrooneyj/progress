@@ -51,8 +51,3 @@ target increase value description y m d = Target {
   }
 targetDecrease = target False
 targetIncrease = target True
-
--- | A database with no data.
-emptyDatabase :: Database
-emptyDatabase = Database 0 Map.empty Map.empty Map.empty Map.empty Map.empty Map.empty
-

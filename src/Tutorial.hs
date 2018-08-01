@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Tutorial where
 
 -- * Example database usage, see the 'example' below for a block of operations.
@@ -15,11 +17,9 @@ module Tutorial where
 
 import           Control.Monad                     (void)
 import           Control.Monad.IO.Class            (liftIO)
-import           Control.Monad.State               as State
 import           Data.Maybe                        (fromJust)
 import qualified Database.Store.Class              as Db
-import           Database.Store.Store.InMemory     (InMemoryStore',
-                                                    InMemoryStoreIO,
+import           Database.Store.Store.InMemory     (InMemoryStoreIO,
                                                     runInMemoryStore)
 import           Numeric.Units.Dimensional         as Dim
 import qualified Numeric.Units.Dimensional.SIUnits as SI
@@ -33,13 +33,13 @@ runExample :: IO ()
 runExample = do
   let db = Just mempty
   db <- run example $ fromJust db
-  run example $ fromJust db
+  run example $ snd $ fromJust db
   prettyLn db
 
 -- | We are using an in-memory non-persisted data store.
 type Store a = InMemoryStoreIO a
 
--- | The associated function to run data transactions.
+-- | The associated function to run database operations.
 run = runInMemoryStore
 
 -- | The contents of this function show how we can modify the database.
