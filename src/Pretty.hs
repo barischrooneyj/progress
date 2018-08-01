@@ -28,11 +28,13 @@ class Pretty a where
   prettyLn :: a -> IO ()
   prettyLn = putStrLn . pretty
 
--- | Given indentation w/wo newline.
+-- | Given amount of spaces WITHOUT a newline.
 sn n = replicate n ' '
+
+-- | Given amount of spaces WITH a newline.
 ln n = "\n" ++ sn n
 
--- * Pretty instances of common types.
+-- * Pretty instances for common types/typeclasses.
 
 -- | Any 'Foldable' containing 'Pretty' things can also be 'Pretty'.
 instance {-# OVERLAPPABLE #-} (Foldable f, Pretty a) => Pretty (f a) where

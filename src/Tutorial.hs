@@ -19,12 +19,11 @@ import           Pretty                            (prettyLn)
 
 -- | Pretty print the database after running the example below.
 runExample :: IO ()
-runExample = void $ do
+runExample = do
   let db = mempty
   -- | Run the example twice on the same database.
-  (_, db) <- run example db
+  db <- fromJust <$> run example db
   prettyLn db
-  run example db
 
 -- | We are using an in-memory non-persisted data store.
 type Store a = InMemoryStoreIO a
@@ -35,9 +34,12 @@ run = runInMemoryStore
 -- | The contents of this function show how we can modify the database.
 example :: Store ()
 example = void $ do
-  -- | Creating two users.
+  -- | First create two users.
   gabriel <- Db.set $ C.user "gabmass"        "!@£$%^&*()"
   jeremy  <- Db.set $ C.user "barischrooneyj" "!@£$%^&*()"
+
+  -- | You can print in the 'Store' monad.
+  -- liftIO $ print gabriel
 
   -- | A few regions including the root "World".
   world   <- Db.set $ C.region' jeremy  "World"
