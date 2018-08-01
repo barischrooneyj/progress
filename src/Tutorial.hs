@@ -9,31 +9,28 @@ module Tutorial where
 -- * Open GHCI with @stack ghci progress:exe:progress-exe@ or other.
 -- * Load this tutorial with all its useful imports, @:l src/Tutorial.hs@.
 -- * Create a database, run the 'example' below, and print the database:
--- >     let db = Just mempty
--- >     db <- run example $ fromJust db.
--- >     prettyLn db.
+-- >     db <- newInMemoryStore
+-- >     run example db
+-- >     prettyLn db
 -- * Or run an individual command:
 -- >     db <- run (Db.set $ C.user "geoff" "geoffspasword") $ fromJust db
 
 import           Control.Monad                     (void)
-import           Control.Monad.IO.Class            (liftIO)
-import           Data.Maybe                        (fromJust)
 import qualified Database.Store.Class              as Db
 import           Database.Store.Store.InMemory     (InMemoryStoreIO,
+                                                    newInMemoryStore,
                                                     runInMemoryStore)
 import           Numeric.Units.Dimensional         as Dim
 import qualified Numeric.Units.Dimensional.SIUnits as SI
 
 import qualified Constructors                      as C
-import           Data.Monoid                       (mempty)
 import           Pretty                            (prettyLn)
 
--- | A short example, runnable in IO.
+-- | A short example.
 runExample :: IO ()
 runExample = do
-  let db = Just mempty
-  db <- run example $ fromJust db
-  run example $ snd $ fromJust db
+  db <- newInMemoryStore
+  run example db
   prettyLn db
 
 -- | We are using an in-memory non-persisted data store.

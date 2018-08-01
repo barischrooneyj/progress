@@ -5,6 +5,7 @@ module Pretty where
 
 -- * Pretty printing typeclass and model instances, aimed at command line usage.
 
+import           Control.Concurrent.MVar       (readMVar)
 import           Control.Lens
 import           Data.DateTime                 as T
 import           Data.Foldable                 (Foldable)
@@ -122,11 +123,12 @@ instance Pretty Rep where
 
 -- | A simple way to show the entire database without looking at types.
 instance Pretty InMemoryStore' where
-  prettyN n (InMemoryStore' m) =
+  prettyLn (InMemoryStore' mapMVar) = do
+    db <- readMVar mapMVar
     -- | We subtract 'spaces' amount of spaces here to have each element in
     -- line with the opening list. This means all elements are aligned to the
     -- left margin when printing an entire database.
-    prettyN (n-spaces) $ map (prettyStoreValue n) $ Map.elems m
+    putStrLn $ prettyN (-spaces) $ map (prettyStoreValue 0) $ Map.elems db
 
 -- | Attempt to parse the given string as each possible type until success, then
 -- return the pretty string of the parsed value.
