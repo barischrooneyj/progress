@@ -18,19 +18,6 @@ import           Numeric.Units.Dimensional (Dimension' (..))
 import           Database.Store.Class      (Consistent, Identifiable, Storable,
                                             Update (..))
 
--- * Overview
---
--- Reading through the data types, 'Region' emerges as a central data type.
--- Everything is connected to a region, and they can be connected to each other.
--- Even though the term region invokes ideas of a physical region, the idea is
--- more broad than that. A region in this model could be quite abstract, perhaps
--- most generally considered as a set of grouped issues/targets. Regions have
--- 'Targets' and the 'Progress' they have made towards those targets.
-
--- ** TODO: Suggest metrics for region via sibling regions.
--- ** TODO: Get progress of a region in terms of children.
--- ** TODO: Get progress of other regions on same metric.
-
 -- | First our many type aliases!
 type DateTime        = T.DateTime
 type Dimension       = Dimension'
