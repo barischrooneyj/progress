@@ -12,7 +12,11 @@ module Tutorial where
 -- >     db <- newInMemoryStore
 -- >     run db example
 -- >     prettyLn db
--- * Or run an individual command:
+-- 
+-- * For ease all the above is combined into:
+-- >     ./.interact.sh
+-- 
+-- * You can run an individual command like:
 -- >     run db $ Db.set $ C.user "geoff" "geoffspasword"
 
 import           Control.Monad                     (void)
