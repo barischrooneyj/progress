@@ -15,7 +15,6 @@ module Model where
 -- most generally considered as a set of grouped issues/targets. Regions have
 -- 'Targets' and the 'Progress' they have made towards those targets.
 
--- ** TODO: Add HTTP API.
 -- ** TODO: Suggest metrics for region via sibling regions.
 -- ** TODO: Get progress of a region in terms of children.
 -- ** TODO: Get progress of other regions on same metric.
@@ -28,11 +27,8 @@ import           Data.Typeable             (Typeable)
 import qualified Database.Store.Class      as S
 import           Numeric.Units.Dimensional (Dimension' (..))
 
--- | Keeping track of the imports necessary for simple-store.
 import           Database.Store.Class      (Consistent, Identifiable, Storable,
                                             Update (..))
-
--- ** The data types.
 
 -- | First our many type aliases!
 type DateTime        = T.DateTime
@@ -173,3 +169,4 @@ makeLensesWith camelCaseFields ''Rep
 instance Identifiable Rep RepKey where
   key r = (r ^. name, r ^.region)
 instance Storable Rep RepKey
+instance Consistent Rep RepKey

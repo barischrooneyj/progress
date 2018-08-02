@@ -10,32 +10,24 @@ module Tutorial where
 -- * Load this tutorial with all its useful imports, @:l src/Tutorial.hs@.
 -- * Create a database, run the 'example' below, and print the database:
 -- >     db <- newInMemoryStore
--- >     run example db
+-- >     run db example
 -- >     prettyLn db
 -- * Or run an individual command:
 -- >     run db $ Db.set $ C.user "geoff" "geoffspasword"
 
 import           Control.Monad                     (void)
 import qualified Database.Store.Class              as Db
-import           Database.Store.Store.InMemory     (InMemoryStoreIO,
-                                                    newInMemoryStore,
-                                                    runInMemoryStore)
 import           Numeric.Units.Dimensional         as Dim
 import qualified Numeric.Units.Dimensional.SIUnits as SI
 
 import qualified Constructors                      as C
+import           Database                          (Store, newStore, run)
 import           Pretty                            (prettyLn)
 
--- | We are using an in-memory non-persisted database.
-type Store a = InMemoryStoreIO a
-
--- | And the associated function to run database operations.
-run = runInMemoryStore
-
--- | A minimal example runnable in IO.
+-- | Running the example in IO.
 runExample :: IO ()
 runExample = do
-  db <- newInMemoryStore
+  db <- newStore
   run db example
   prettyLn db
 
