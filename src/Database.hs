@@ -1,6 +1,5 @@
+-- | Choosing our database backend.
 module Database where
-
--- * Choosing our database backend.
 
 import           Database.Store.Store.InMemory (InMemoryStoreIO,
                                                 newInMemoryStore,

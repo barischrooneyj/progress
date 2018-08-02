@@ -1,9 +1,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiWayIf        #-}
 
+-- | Pretty printing typeclass and model instances, aimed at command line usage.
 module Pretty where
-
--- * Pretty printing typeclass and model instances, aimed at command line usage.
 
 import           Control.Concurrent.MVar       (readMVar)
 import           Control.Lens
@@ -125,7 +124,7 @@ instance Pretty Rep where
 instance Pretty InMemoryStore' where
   prettyLn (InMemoryStore' mapMVar) = do
     db <- readMVar mapMVar
-    -- | We subtract 'spaces' amount of spaces here to have each element in
+    -- We subtract 'spaces' amount of spaces here to have each element in
     -- line with the opening list. This means all elements are aligned to the
     -- left margin when printing an entire database.
     putStrLn $ prettyN (-spaces) $ map (prettyStoreValue 0) $ Map.elems db

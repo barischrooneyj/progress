@@ -1,6 +1,5 @@
+-- | Helpful constructors for the data types in Model.hs.
 module Constructors where
-
--- * Helpful constructors for the data types in Model.hs.
 
 import           Control.Lens
 import           Data.DateTime             as T

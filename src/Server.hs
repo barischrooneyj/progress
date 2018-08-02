@@ -6,19 +6,20 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeOperators      #-}
 
+-- | Server for interacting with the database over a network.
 module Server where
 
 import           Control.Monad.IO.Class        (liftIO)
 import           Data.Aeson                    (ToJSON)
 import           Data.Maybe                    (fromJust)
 import           Database.Store.Class          (Store (..))
-import           Database.Store.Store.InMemory
+import           Database.Store.Store.InMemory (InMemoryStore')
 import           GHC.Generics                  (Generic)
 import qualified Network.Wai.Handler.Warp      as Warp
 import           Numeric.Units.Dimensional     (Dimension' (..))
 import           Servant                       (Application, Proxy (..), Server)
 import qualified Servant
-import           Servant.API
+import           Servant.API                   ((:<|>) (..), (:>), Get, JSON)
 
 import qualified Database                      as Db
 import           Model
@@ -41,6 +42,7 @@ deriving instance ToJSON Rep
 
 deriving instance ToJSON Dimension'
 
+-- | API to get elements from the database.
 type API =
        "metric"   :> "all" :> Get '[JSON] [Metric]
   :<|> "user"     :> "all" :> Get '[JSON] [User]
@@ -52,7 +54,7 @@ type API =
 -- | Serve a list of all stored values of given type.
 serveAll db a = fromJust <$> liftIO (Db.run db $ viewAll a)
 
--- | Handler that simply returns users.
+-- | Serve all values from the database for each type.
 server :: InMemoryStore' -> Server API
 server db =
        serveAll db Metric{}
