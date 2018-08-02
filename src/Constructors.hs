@@ -4,10 +4,8 @@ module Constructors where
 
 import           Control.Lens
 import           Data.DateTime             as T
-import qualified Data.Map                  as Map
 import qualified Data.Set                  as Set
 import           Database.Store.Class      (Identifiable (key))
-import           Numeric.Units.Dimensional (HasDimension)
 import qualified Numeric.Units.Dimensional as Dim
 
 import           Model

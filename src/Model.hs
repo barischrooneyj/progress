@@ -8,7 +8,7 @@ module Model where
 
 -- * Modeling the progress and targets of regions.
 --
--- | Reading through the data type 'Region' emerges as a central data type.
+-- | Reading through the data types, 'Region' emerges as a central data type.
 -- Everything is connected to a region, and they can be connected to each other.
 -- Even though the term region invokes ideas of a physical region, the idea is
 -- more broad than that. A region in this model could be quite abstract, perhaps
@@ -22,7 +22,6 @@ module Model where
 
 import           Control.Lens
 import qualified Data.DateTime             as T
-import           Data.Map                  (Map)
 import           Data.Set                  (Set)
 import qualified Data.Set                  as Set
 import           Data.Typeable             (Typeable)
@@ -30,8 +29,8 @@ import qualified Database.Store.Class      as S
 import           Numeric.Units.Dimensional (Dimension' (..))
 
 -- | Keeping track of the imports necessary for simple-store.
-import           Database.Store.Class
-import           Database.Store.Class      (Consistent)
+import           Database.Store.Class      (Consistent, Identifiable, Storable,
+                                            Update (..))
 
 -- ** The data types.
 
@@ -128,9 +127,11 @@ instance Identifiable Progress ProgressKey where
 instance Storable Progress ProgressKey
 instance Consistent Progress ProgressKey where
   onAdd = const [updateRegion]
-    where updateRegion = Update (\a ->
+    where updateRegion = Update (\a -> (
             -- | Add a reference to a 'Region' about this 'Progress'.
-            ([a ^. region], \(b :: Region) -> b & progress %~ Set.insert (a ^. ident)))
+              [a ^. region],
+              \(b :: Region) -> b & progress %~ Set.insert (a ^. ident))
+            )
 
 -- | A target for some metric with a description.
 -- | Compared by all fields.

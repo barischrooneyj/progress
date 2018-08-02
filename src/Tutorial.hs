@@ -4,7 +4,7 @@ module Tutorial where
 
 -- * Example database usage, see the 'example' below for a block of operations.
 --
--- | To interact with the database interactively in GHCI:
+-- | To use the database interactively in GHCI:
 --
 -- * Open GHCI with @stack ghci progress:exe:progress-exe@ or other.
 -- * Load this tutorial with all its useful imports, @:l src/Tutorial.hs@.
@@ -13,7 +13,7 @@ module Tutorial where
 -- >     run example db
 -- >     prettyLn db
 -- * Or run an individual command:
--- >     db <- run (Db.set $ C.user "geoff" "geoffspasword") $ fromJust db
+-- >     run db $ Db.set $ C.user "geoff" "geoffspasword"
 
 import           Control.Monad                     (void)
 import qualified Database.Store.Class              as Db
@@ -26,18 +26,18 @@ import qualified Numeric.Units.Dimensional.SIUnits as SI
 import qualified Constructors                      as C
 import           Pretty                            (prettyLn)
 
--- | A short example.
+-- | We are using an in-memory non-persisted database.
+type Store a = InMemoryStoreIO a
+
+-- | And the associated function to run database operations.
+run = runInMemoryStore
+
+-- | A minimal example runnable in IO.
 runExample :: IO ()
 runExample = do
   db <- newInMemoryStore
-  run example db
+  run db example
   prettyLn db
-
--- | We are using an in-memory non-persisted data store.
-type Store a = InMemoryStoreIO a
-
--- | The associated function to run database operations.
-run = runInMemoryStore
 
 -- | The contents of this function show how we can modify the database.
 example :: Store ()
