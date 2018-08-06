@@ -1,4 +1,4 @@
-name:                progress
+name:                progress-frontend
 version:             0.1.0.0
 github:              "barischrooneyj/progress"
 license:             BSD3
@@ -11,36 +11,23 @@ extra-source-files:
 - ChangeLog.md
 
 # Metadata used when publishing your package
-synopsis:            Modeling region's targets and their progress.
-category:            Society
+# synopsis:            Short description of your package
+# category:            Web
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the 'Tutorial' module.
+description:         Please see the README on GitHub at <https://github.com/barischrooneyj/progress#readme>
 
 dependencies:
-- aeson
 - base >= 4.7 && < 5
-- containers
-- datetime
-- dimensional
-- lens
-- monad-extras
-- mtl
-- pretty-simple
-- servant
-- servant-server
-- simple-store
-- tostring
-- transformers
-- warp
+- reflex-dom
 
 library:
   source-dirs: src
 
 executables:
-  progress-exe:
+  progress-frontend-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -48,10 +35,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - progress
+    - progress-frontend
 
 tests:
-  progress-test:
+  progress-frontend-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -59,4 +46,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - progress
+    - progress-frontend

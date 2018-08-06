@@ -1,0 +1,108 @@
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 239998f766401945d92f95a6523cadbea97617b850da7b8ff5887378e65a418b
+
+name:           progress-backend
+version:        0.1.0.0
+description:    Please see the 'Tutorial' module.
+homepage:       https://github.com/barischrooneyj/progress#readme
+bug-reports:    https://github.com/barischrooneyj/progress/issues
+author:         Jeremy Barisch-Rooney
+maintainer:     barischrooneyj@gmail.com
+copyright:      Jeremy Barisch-Rooney (c) 2018
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/barischrooneyj/progress
+
+library
+  exposed-modules:
+      Constructors
+      Database
+      Model
+      Pretty
+      Server
+      Tutorial
+  other-modules:
+      Paths_progress_backend
+  hs-source-dirs:
+      src
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , containers
+    , datetime
+    , dimensional
+    , lens
+    , monad-extras
+    , mtl
+    , pretty-simple
+    , servant
+    , servant-server
+    , simple-store
+    , tostring
+    , transformers
+    , warp
+  default-language: Haskell2010
+
+executable progress-backend-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_progress_backend
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , containers
+    , datetime
+    , dimensional
+    , lens
+    , monad-extras
+    , mtl
+    , pretty-simple
+    , progress-backend
+    , servant
+    , servant-server
+    , simple-store
+    , tostring
+    , transformers
+    , warp
+  default-language: Haskell2010
+
+test-suite progress-backend-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_progress_backend
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , containers
+    , datetime
+    , dimensional
+    , lens
+    , monad-extras
+    , mtl
+    , pretty-simple
+    , progress-backend
+    , servant
+    , servant-server
+    , simple-store
+    , tostring
+    , transformers
+    , warp
+  default-language: Haskell2010
