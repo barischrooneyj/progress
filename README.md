@@ -14,13 +14,16 @@ Regions have 'Targets' and the 'Progress' they have made towards those targets.
 First clone this project and change into the directory: `git clone
 git@github.com:barischrooneyj/progress && cd progress`.
 
+Note that initial builds while take some time as dependencies are installed.
+
 ### Backend
 
 Have [Stack](https://docs.haskellstack.org/en/stable/README/#how-to-install)
 installed, on macOS you can install Stack with [Homebrew](https://brew.sh/):
 `brew install haskell-stack`.
 
-`cd progress-backend` and build the project with `stack build`.
+`cd progress-backend` and build the project with `stack build`. To build the
+project on file changes either `ghcid` or `stack build --file-watch --fast`.
 
 You can now run the server with `stack exec progress-backend-exe`. Visit
 `localhost:8081/region/all` in your browser to see a list of all regions in the
@@ -37,6 +40,15 @@ Building the frontend requires [Nix](https://nixos.org/nix/). Install Nix with:
 
 To build the frontend run this from the root directory: `nix-build -o
 frontend-result -A ghcjs.frontend`. This will create a symlink called
-`frontend-result` to a directory containing the built output. The first build
-will take a while as GHCJS and other dependencies are installed. You can open
-the frontend with: `open frontend-result/bin/progress-dom-exe.jsexe/index.html`.
+`frontend-result` to a directory containing the built output. You can open the
+frontend with: `open frontend-result/bin/progress-dom-exe.jsexe/index.html`.
+
+We can also compile with GHC instead of GHCJS `nix-build -o frontend-result-warp
+-A ghc.frontend`. Then run the generated executable with
+`frontend-result-warp/bin/progress-frontend-exe` to open a browser window
+displaying the frontend.
+
+You can enter the reflex sandbox from the root directory with
+`./reflex-platform/try-reflex`. Then from the `progress-frontend` directory run
+`ghcid -c cabal repl lib:progress-frontend`. This will recompile the project on
+file changes.

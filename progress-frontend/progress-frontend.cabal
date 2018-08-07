@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 05a14eb74a885119a6ba6ab800879a9655adca15b677f9b0c7d019ac6e770864
+-- hash: 0ec570b7caded91de32ed17746d03546e1a6448c97660d1c55e1efdf3520c6f7
 
 name:           progress-frontend
 version:        0.1.0.0
@@ -33,6 +33,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , jsaddle-warp
     , reflex-dom
   default-language: Haskell2010
 
@@ -45,6 +46,7 @@ executable progress-frontend-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , jsaddle-warp
     , progress-frontend
     , reflex-dom
   default-language: Haskell2010
@@ -59,6 +61,7 @@ test-suite progress-frontend-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , jsaddle-warp
     , progress-frontend
     , reflex-dom
   default-language: Haskell2010

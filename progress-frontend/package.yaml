@@ -22,6 +22,7 @@ description:         Please see the README on GitHub at <https://github.com/bari
 dependencies:
 - base >= 4.7 && < 5
 - reflex-dom
+- jsaddle-warp
 
 library:
   source-dirs: src
