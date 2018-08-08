@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 239998f766401945d92f95a6523cadbea97617b850da7b8ff5887378e65a418b
+-- hash: 47b769a4b85a2d7b99a7705ba9b54b5f2f3b2616f377e16d9da73b1e8ffa220e
 
 name:           progress-backend
 version:        0.1.0.0
@@ -60,6 +60,32 @@ executable progress-backend-exe
       Paths_progress_backend
   hs-source-dirs:
       app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , containers
+    , datetime
+    , dimensional
+    , lens
+    , monad-extras
+    , mtl
+    , pretty-simple
+    , progress-backend
+    , servant
+    , servant-server
+    , simple-store
+    , tostring
+    , transformers
+    , warp
+  default-language: Haskell2010
+
+executable progress-backend-tutorial-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_progress_backend
+  hs-source-dirs:
+      app-tutorial
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson

@@ -5,11 +5,11 @@ import           Database.Store.Store.InMemory (InMemoryStoreIO,
                                                 newInMemoryStore,
                                                 runInMemoryStore)
 
--- | The in-memory non-persisted database..
+-- | The monad our operations run in.
 type Store a = InMemoryStoreIO a
 
--- | ..the associated function to run database operations..
+-- | The associated function to run database operations.
 run = runInMemoryStore
 
--- | ..and the associated database constructor.
+-- | The associated database constructor.
 newStore = newInMemoryStore

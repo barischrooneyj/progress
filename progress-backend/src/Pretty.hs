@@ -122,7 +122,7 @@ instance Pretty Rep where
 
 -- | A simple way to show the entire database without looking at types.
 instance Pretty InMemoryStore' where
-  prettyLn (InMemoryStore' mapMVar) = do
+  prettyLn (InMemoryStore' mapMVar _unusedEventHandlers) = do
     db <- readMVar mapMVar
     -- We subtract 'spaces' amount of spaces here to have each element in
     -- line with the opening list. This means all elements are aligned to the

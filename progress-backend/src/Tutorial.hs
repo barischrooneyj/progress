@@ -5,12 +5,15 @@ module Tutorial where
 
 import           Control.Monad                     (void)
 import qualified Database.Store.Class              as Db
+import           Database.Store.Store.InMemory     (InMemoryStore' (..))
 import           Numeric.Units.Dimensional         as Dim
 import qualified Numeric.Units.Dimensional.SIUnits as SI
+import           Text.Read                         (readMaybe)
 
 import qualified Constructors                      as C
 import           Database                          (Store, newStore, run)
-import           Pretty                            (prettyLn)
+import           Model                             (User)
+import           Pretty                            (pretty, prettyLn)
 
 -- * To use the database interactively in GHCI:
 --
@@ -20,19 +23,26 @@ import           Pretty                            (prettyLn)
 -- >         db <- newInMemoryStore
 -- >         run db example
 -- >         prettyLn db
--- 
+--
 -- *     For ease all the above is combined into:
--- >         ./.interact.sh
--- 
+-- >         ./interact.sh
+--
 -- *     You can run an individual command like:
 -- >         run db $ Db.set $ C.user "geoff" "geoffspasword"
 
--- | Running the example in IO.
+-- | A short example, similar to above. Creating a database, but with an event
+-- handler that prints a message whenever a 'User' is set in the database. Then
+-- we run a few operation, namely the 'example' below and also print the entire
+-- database contents.
 runExample :: IO ()
 runExample = do
-  db <- newStore
+  db <- newStore [printYayWhenUserSet]
   run db example
   prettyLn db
+  where printYayWhenUserSet s = Just $
+          case (readMaybe s :: Maybe User) of
+            Just user -> putStrLn $ "Yay printed user" ++ pretty user
+            Nothing   -> putStrLn "Not user"
 
 -- | The contents of this function show how we can modify the database.
 example :: Store ()
