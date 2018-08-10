@@ -111,10 +111,10 @@ instance Identifiable Progress ProgressKey where
 instance Storable Progress ProgressKey
 instance Consistent Progress ProgressKey where
   onAdd = const [updateRegion]
-    where updateRegion = Update (\a -> (
-            -- Add a reference to a 'Region' about this 'Progress'.
+    -- Add a reference to a 'Region' about this 'Progress'.
+    where updateRegion = Update $ \a -> (
               [a ^. region],
-              \(b :: Region) -> b & progress %~ Set.insert (a ^. ident))
+              \(b :: Region) -> b & progress %~ Set.insert (a ^. ident)
             )
 
 -- | A target for some metric with a description.

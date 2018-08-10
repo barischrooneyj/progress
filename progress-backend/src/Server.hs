@@ -17,14 +17,15 @@ import           Database.Store.Store.InMemory (InMemoryStore')
 import           GHC.Generics                  (Generic)
 import qualified Network.Wai.Handler.Warp      as Warp
 import           Numeric.Units.Dimensional     (Dimension' (..))
-import           Servant                       (Application, Proxy (..), Server)
-import qualified Servant
+import           Servant                       (Application, Proxy (..), Raw,
+                                                Server, serve)
 import           Servant.API                   ((:<|>) (..), (:>), Get, JSON)
+import           Servant.Utils.StaticFiles     (serveDirectoryWebApp)
 
 import qualified Database                      as Db
 import           Model
 
--- | Deriving necessary instances for on-the-wire serialization.
+-- | Deriving necessary instances for serialization.
 deriving instance Generic User
 deriving instance ToJSON User
 deriving instance Generic Metric
@@ -42,7 +43,7 @@ deriving instance ToJSON Rep
 
 deriving instance ToJSON Dimension'
 
--- | API to get elements from the database.
+-- | The entire API.
 type API =
        "metric"   :> "all" :> Get '[JSON] [Metric]
   :<|> "user"     :> "all" :> Get '[JSON] [User]
@@ -50,11 +51,16 @@ type API =
   :<|> "progress" :> "all" :> Get '[JSON] [Progress]
   :<|> "targets"  :> "all" :> Get '[JSON] [Targets]
   :<|> "rep"      :> "all" :> Get '[JSON] [Rep]
+  :<|> "static"   :> Raw
 
 -- | Serve a list of all stored values of given type.
 serveAll db a = fromJust <$> liftIO (Db.run db $ viewAll a)
 
--- | Serve all values from the database for each type.
+-- | Relative path to the static files directory, from the 'progress-frontend'
+-- directory, where the executable should be run.
+staticPath = "../frontend-result/bin/progress-frontend-exe.jsexe/"
+
+-- | Our server consists of handlers for each API endpoint.
 server :: InMemoryStore' -> Server API
 server db =
        serveAll db Metric{}
@@ -63,11 +69,12 @@ server db =
   :<|> serveAll db Progress{}
   :<|> serveAll db Targets{}
   :<|> serveAll db Rep{}
+  :<|> serveDirectoryWebApp staticPath
 
--- | Application that serves the API.
+-- | Application that combines the server and API.
 app :: InMemoryStore' -> Application
-app db = Servant.serve (Proxy :: Proxy API) $ server db
+app db = serve (Proxy :: Proxy API) $ server db
 
--- | Run the app on a given port.
+-- | Run the application on a given port and with given database.
 run :: Int -> InMemoryStore' -> IO ()
 run port db = Warp.run port $ app db

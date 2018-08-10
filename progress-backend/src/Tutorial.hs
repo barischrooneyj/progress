@@ -30,7 +30,7 @@ import           Pretty                            (pretty, prettyLn)
 -- *     You can run an individual command like:
 -- >         run db $ Db.set $ C.user "geoff" "geoffspasword"
 
--- | A short example, similar to above. Creating a database, but with an event
+-- | A short example, similar to above. We create a database, but with an event
 -- handler that prints a message whenever a 'User' is set in the database. Then
 -- we run a few operation, namely the 'example' below and also print the entire
 -- database contents.
@@ -41,8 +41,8 @@ runExample = do
   prettyLn db
   where printYayWhenUserSet s = Just $
           case (readMaybe s :: Maybe User) of
-            Just user -> putStrLn $ "Yay printed user" ++ pretty user
-            Nothing   -> putStrLn "Not user"
+            Just user -> putStrLn $ "Yay, set " ++ pretty user
+            Nothing   -> putStrLn "Not User"
 
 -- | The contents of this function show how we can modify the database.
 example :: Store ()
@@ -51,7 +51,8 @@ example = void $ do
   gabriel <- Db.set $ C.user "gabmass"        "!@£$%^&*()"
   jeremy  <- Db.set $ C.user "barischrooneyj" "!@£$%^&*()"
 
-  -- You can pretty print in the 'Store' monad, or just normal print.
+  -- You can also perform IO in the 'Store' monad, such as pretty printing a
+  -- 'User'.
   -- liftIO $ prettyLn gabriel
 
   -- A few regions including the root "World".

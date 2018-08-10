@@ -23,7 +23,8 @@ installed, on macOS you can install Stack with [Homebrew](https://brew.sh/):
 `brew install haskell-stack`.
 
 `cd progress-backend` and build the project with `stack build`. To build the
-project on file changes either `ghcid` or `stack build --file-watch --fast`.
+project on file changes `stack build --file-watch --fast`, or `ghcid` to just
+type check and not generate any code.
 
 You can now run the server with `stack exec progress-backend-exe`. Visit
 `localhost:8081/region/all` in your browser to see a list of all regions in the
@@ -44,11 +45,10 @@ frontend-result -A ghcjs.frontend`. This will create a symlink called
 frontend with: `open frontend-result/bin/progress-dom-exe.jsexe/index.html`.
 
 We can also compile with GHC instead of GHCJS `nix-build -o frontend-result-warp
--A ghc.frontend`. Then run the generated executable with
-`frontend-result-warp/bin/progress-frontend-exe` to open a browser window
-displaying the frontend.
+-A ghc.frontend`. Then run the generated executable
+`frontend-result-warp/bin/progress-frontend-warp-exe` which will serve the
+frontend on 'localhost:3003'.
 
-You can enter the reflex sandbox from the root directory with
-`./reflex-platform/try-reflex`. Then from the `progress-frontend` directory run
-`ghcid -c cabal repl lib:progress-frontend`. This will recompile the project on
-file changes.
+To compile (but not build) on file changes first enter the reflex sandbox from
+the root directory with `./reflex-platform/try-reflex`. Then from the
+`progress-frontend` directory run `ghcid -c cabal repl lib:progress-frontend`.
