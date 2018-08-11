@@ -1,10 +1,10 @@
-name:                progress-backend
+name:                backend
 version:             0.1.0.0
-github:              "barischrooneyj/progress"
+github:              "barischrooneyj/progress/backend"
 license:             BSD3
-author:              "Jeremy Barisch-Rooney"
+author:              "Jeremy Barisch Rooney"
 maintainer:          "barischrooneyj@gmail.com"
-copyright:           "Jeremy Barisch-Rooney (c) 2018"
+copyright:           "2018 Jeremy Barisch Rooney"
 
 extra-source-files:
 - README.md
@@ -40,7 +40,7 @@ library:
   source-dirs: src
 
 executables:
-  progress-backend-exe:
+  backend-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -48,9 +48,9 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - progress-backend
+    - backend
 
-  progress-backend-tutorial-exe:
+  backend-tutorial-exe:
     main:                Main.hs
     source-dirs:         app-tutorial
     ghc-options:
@@ -58,10 +58,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - progress-backend
+    - backend
 
 tests:
-  progress-backend-test:
+  backend-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -69,4 +69,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - progress-backend
+    - backend

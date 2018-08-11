@@ -1,4 +1,6 @@
+.DS_Store
+frontend-result
+frontend-result-warp
 .stack-work/
-frontend-result-warp/
-progress-frontend/dist-newstyle/
-progress-frontend/dist/
+frontend/dist/
+frontend/dist-newstyle/

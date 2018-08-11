@@ -2,11 +2,12 @@
   useWarp = true;
 
   packages = {
-    frontend = ./progress-frontend;
+    common = ./common;
+    frontend = ./frontend;
   };
 
   shells = {
-    ghc = ["frontend"];
-    ghcjs = ["frontend"];
+    ghc = ["common" "frontend"];
+    ghcjs = ["common" "frontend"];
   };
 })

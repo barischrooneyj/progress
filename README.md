@@ -22,11 +22,11 @@ Have [Stack](https://docs.haskellstack.org/en/stable/README/#how-to-install)
 installed, on macOS you can install Stack with [Homebrew](https://brew.sh/):
 `brew install haskell-stack`.
 
-`cd progress-backend` and build the project with `stack build`. To build the
-project on file changes `stack build --file-watch --fast`, or `ghcid` to just
-type check and not generate any code.
+`cd backend` and build the project with `stack build`. To build the project on
+file changes `stack build --file-watch --fast`, or `ghcid` to just type check
+and not generate any code.
 
-You can now run the server with `stack exec progress-backend-exe`. Visit
+After building you can run the server with `stack exec backend-exe`. Visit
 `localhost:8081/region/all` in your browser to see a list of all regions in the
 database returned as JSON.
 
@@ -39,7 +39,7 @@ interactive usage and some examples are in [Tutorial.hs](src/Tutorial.hs).
 Building the frontend requires [Nix](https://nixos.org/nix/). Install Nix with:
 `curl https://nixos.org/nix/install | sh`.
 
-To build the frontend run this from the root directory: `nix-build -o
+To build the frontend run the following from the root directory: `nix-build -o
 frontend-result -A ghcjs.frontend`. This will create a symlink called
 `frontend-result` to a directory containing the built output. You can open the
 frontend with: `open frontend-result/bin/progress-dom-exe.jsexe/index.html`.
@@ -47,8 +47,8 @@ frontend with: `open frontend-result/bin/progress-dom-exe.jsexe/index.html`.
 We can also compile with GHC instead of GHCJS `nix-build -o frontend-result-warp
 -A ghc.frontend`. Then run the generated executable
 `frontend-result-warp/bin/progress-frontend-warp-exe` which will serve the
-frontend on 'localhost:3003'.
+frontend on `localhost:3003`.
 
-To compile (but not build) on file changes first enter the reflex sandbox from
-the root directory with `./reflex-platform/try-reflex`. Then from the
-`progress-frontend` directory run `ghcid -c cabal repl lib:progress-frontend`.
+To type check on file changes first enter the reflex sandbox from the root
+directory with `./reflex-platform/try-reflex`. Then from the `frontend`
+directory run `ghcid -c cabal repl lib:progress-frontend`.
