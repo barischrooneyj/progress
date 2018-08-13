@@ -6,15 +6,15 @@ module Pretty where
 
 import           Control.Concurrent.MVar       (readMVar)
 import           Control.Lens
-import           Data.DateTime                 as T
 import           Data.Foldable                 (Foldable)
 import qualified Data.Map                      as Map
 import           Data.Maybe                    (fromJust, isJust)
+import           Data.Time.Calendar            (toGregorian)
 import           Database.Store.Store.InMemory (InMemoryStore' (..))
 import           Numeric.Units.Dimensional     (Dimension' (..))
 import           Text.Read                     (readMaybe)
 
-import           Model
+import           BackendModel
 
 -- | Our pretty printing typeclass.
 class Pretty a where
@@ -59,7 +59,7 @@ instance Pretty String where
 -- ** Pretty instances for our model types.
 
 instance Pretty Measurement where
-  pretty (mv, d) = show mv ++ " on " ++ show (T.toGregorian' d)
+  pretty (mv, d) = show mv ++ " on " ++ show (toGregorian d)
 
 -- | A short representation like m^3 s^-1.
 instance Pretty Dimension where
@@ -102,7 +102,7 @@ instance Pretty Target where
   prettyN n u = concat [
       sn n ++ "Target:" ++ if u ^. increase then "increase" else "decrease"
     , " to ", show $ u ^. value
-    , " by ", show $ T.toGregorian' $ u ^. date
+    , " by ", show $ toGregorian $ u ^. date
     , ln (n+spaces) ++ "(desc: ", show $ u ^.description, ")"
     ]
 

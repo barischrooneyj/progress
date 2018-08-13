@@ -10,6 +10,7 @@ import           Numeric.Units.Dimensional         as Dim
 import qualified Numeric.Units.Dimensional.SIUnits as SI
 import           Text.Read                         (readMaybe)
 
+import           BackendModel
 import qualified Constructors                      as C
 import           Database                          (Store, newStore, run)
 import           Model                             (User)

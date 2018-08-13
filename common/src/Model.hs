@@ -1,25 +1,14 @@
-{-# LANGUAGE FlexibleInstances      #-}
-{-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE ScopedTypeVariables    #-}
 {-# LANGUAGE StandaloneDeriving     #-}
-{-# LANGUAGE TemplateHaskell        #-}
 
 -- | Modeling the progress and targets of regions.
 module Model where
 
-import           Control.Lens
-import qualified Data.DateTime             as T
 import           Data.Set                  (Set)
-import qualified Data.Set                  as Set
-import           Data.Typeable             (Typeable)
-import qualified Database.Store.Class      as S
+import           Data.Time.Calendar        (Day)
 import           Numeric.Units.Dimensional (Dimension' (..))
 
-import           Database.Store.Class      (Consistent, Identifiable, Storable,
-                                            Update (..))
-
 -- | First our many type aliases!
-type DateTime        = T.DateTime
+type DateTime        = Day
 type Dimension       = Dimension'
 type DimensionName   = String
 type Email           = String
@@ -52,13 +41,7 @@ data User = User {
     _userUsername :: Username
   , _userHome     :: Maybe RegionName
   , _userPwdHash  :: PasswordHash
-  } deriving (Read, Show, Typeable)
-
-makeLensesWith camelCaseFields ''User
-instance Identifiable User Username where
-  key u = u ^. username
-instance Storable User Username
-instance Consistent User Username
+  } deriving (Read, Show)
 
 -- | A measurable quantity like "CO2 emissions" or "Plastic tax".
 data Metric = Metric {
@@ -66,12 +49,6 @@ data Metric = Metric {
   , _metricName      :: MetricName
   , _metricDimension :: MetricDimension
   } deriving (Read, Show)
-
-makeLensesWith camelCaseFields ''Metric
-instance Identifiable Metric MetricKey where
-  key m = (m ^. name, m ^. dimension)
-instance Storable Metric MetricKey
-instance Consistent Metric MetricKey
 
 -- | Progress and targets for multiple metrics, under one region. Regions are
 -- unique by name, so there can only be one "France" or "EU".
@@ -86,15 +63,6 @@ data Region = Region {
   , _regionChildren :: Set RegionName
   } deriving (Read, Show)
 
-makeLensesWith camelCaseFields ''Region
-instance Identifiable Region RegionName where
-  key r = r ^. name
-instance Storable Region RegionName where
-instance Consistent Region RegionName where
-  -- onAdd = [updateProgress]
-  --   where updateProgress = Update (a ->
-  --           ())
-
 -- | Measurements for one (metric, region).
 data Progress = Progress {
     _progressIdent  :: ProgressId
@@ -105,18 +73,6 @@ data Progress = Progress {
   , _progressValues :: [Measurement]
   } deriving (Read, Show)
 
-makeLensesWith camelCaseFields ''Progress
-instance Identifiable Progress ProgressKey where
-  key p = (p ^. metric, p ^.region)
-instance Storable Progress ProgressKey
-instance Consistent Progress ProgressKey where
-  onAdd = const [updateRegion]
-    -- Add a reference to a 'Region' about this 'Progress'.
-    where updateRegion = Update $ \a -> (
-              [a ^. region],
-              \(b :: Region) -> b & progress %~ Set.insert (a ^. ident)
-            )
-
 -- | A target for some metric with a description.
 -- Compared by all fields.
 data Target = Target {
@@ -125,8 +81,6 @@ data Target = Target {
   , _targetDescription :: TargetDesc
   , _targetDate        :: DateTime
   } deriving (Eq, Ord, Read, Show)
-
-makeLensesWith camelCaseFields ''Target
 
 -- | Targets for one (metric, region).
 data Targets = Targets {
@@ -137,12 +91,6 @@ data Targets = Targets {
   , _targetsValues :: [Target]
   } deriving (Read, Show)
 
-makeLensesWith camelCaseFields ''Targets
-instance Identifiable Targets TargetsKey where
-  key t = (t ^. metric, t ^.region)
-instance Storable Targets TargetsKey
-instance Consistent Targets TargetsKey
-
 -- | A contactable representative.
 data Rep = Rep {
     _repIdent  :: RepId
@@ -152,9 +100,3 @@ data Rep = Rep {
   , _repEmail  :: [Email]
   , _repPhone  :: [Phone]
   } deriving (Read, Show)
-
-makeLensesWith camelCaseFields ''Rep
-instance Identifiable Rep RepKey where
-  key r = (r ^. name, r ^.region)
-instance Storable Rep RepKey
-instance Consistent Rep RepKey

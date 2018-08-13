@@ -4,13 +4,13 @@
 -- | The top level functions of the frontend.
 module App where
 
-import Data.Default (def)
+import           Data.Default                     (def)
 import qualified Language.Javascript.JSaddle.Warp as Warp
+import           Reflex.Class                     (constant, tag)
 import           Reflex.Dom
-import Reflex.Class (tag, constant)
 import qualified Reflex.Dom.Core                  as Core
 
-import Lib (User)
+import           FrontendModel                    (User (..))
 
 title :: MonadWidget t m => m ()
 title = text "hi"
@@ -18,14 +18,15 @@ title = text "hi"
 -- | The root widget of our frontend.
 app :: MonadWidget t m => m ()
 app = do
-  el "div" $ title
+  el "div" $ text "steven"
+  el "div" title
   buttonEvent <- button "click me"
   let request = xhrRequest "GET" "/user/all" def
   asyncEvent <- performRequestAsync (tag (constant request) buttonEvent)
-  el "hi" $ title
-  -- buttonDyn <- holdDyn (Just $ Response "Nothing yet") $
-  --                fmap decodeXhrResponse asyncEvent
-  -- display buttonDyn
+  el "div" title
+  buttonDyn <- holdDyn (Just $ [User "NoUsername" (Just "NoRegion") "NoPassword"]) $
+                 fmap decodeXhrResponse asyncEvent
+  display buttonDyn
 
 -- | Build the frontend into static files.
 reflexMain :: IO ()

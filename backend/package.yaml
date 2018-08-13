@@ -23,7 +23,7 @@ dependencies:
 - aeson
 - base >= 4.7 && < 5
 - containers
-- datetime
+- common
 - dimensional
 - lens
 - monad-extras
@@ -32,6 +32,7 @@ dependencies:
 - servant
 - servant-server
 - simple-store
+- time
 - tostring
 - transformers
 - warp

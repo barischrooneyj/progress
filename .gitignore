@@ -2,5 +2,5 @@
 frontend-result
 frontend-result-warp
 .stack-work/
-frontend/dist/
-frontend/dist-newstyle/
+dist/
+dist-newstyle/

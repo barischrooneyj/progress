@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8f11c6f96d055c26cb5561539a602baa826d5941ff529667cfe852f2371740cd
+-- hash: d46076ff51943af490f88c53b9b9cb0a3bde11825a1dc6d7ee5f04d4c82d4709
 
 name:           backend
 version:        0.1.0.0
@@ -27,9 +27,9 @@ source-repository head
 
 library
   exposed-modules:
+      BackendModel
       Constructors
       Database
-      Model
       Pretty
       Server
       Tutorial
@@ -40,8 +40,8 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , common
     , containers
-    , datetime
     , dimensional
     , lens
     , monad-extras
@@ -50,6 +50,7 @@ library
     , servant
     , servant-server
     , simple-store
+    , time
     , tostring
     , transformers
     , warp
@@ -66,8 +67,8 @@ executable backend-exe
       aeson
     , backend
     , base >=4.7 && <5
+    , common
     , containers
-    , datetime
     , dimensional
     , lens
     , monad-extras
@@ -76,6 +77,7 @@ executable backend-exe
     , servant
     , servant-server
     , simple-store
+    , time
     , tostring
     , transformers
     , warp
@@ -92,8 +94,8 @@ executable backend-tutorial-exe
       aeson
     , backend
     , base >=4.7 && <5
+    , common
     , containers
-    , datetime
     , dimensional
     , lens
     , monad-extras
@@ -102,6 +104,7 @@ executable backend-tutorial-exe
     , servant
     , servant-server
     , simple-store
+    , time
     , tostring
     , transformers
     , warp
@@ -119,8 +122,8 @@ test-suite backend-test
       aeson
     , backend
     , base >=4.7 && <5
+    , common
     , containers
-    , datetime
     , dimensional
     , lens
     , monad-extras
@@ -129,6 +132,7 @@ test-suite backend-test
     , servant
     , servant-server
     , simple-store
+    , time
     , tostring
     , transformers
     , warp
