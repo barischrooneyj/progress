@@ -27,6 +27,7 @@ dependencies:
 - reflex
 - reflex-dom
 - jsaddle-warp
+- text
 
 library:
   source-dirs: src

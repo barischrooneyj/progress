@@ -11,7 +11,7 @@ import           BackendModel
 
 -- | Constructor for a user.
 user :: Username -> PasswordHash -> User
-user u = User u Nothing
+user u ph = User u Nothing ph
 
 -- | Constructor for a metric with dimension (like m/s).
 metric :: Dim.HasDimension a => User -> MetricName -> a -> Metric
@@ -36,7 +36,7 @@ progress met rg ms = Progress 0 (rg ^. owner) (key met) (rg ^. name) [] ms'
 
 -- | Constructor for a region's targets in some metric.
 targets :: Metric -> Region -> [Target] -> Targets
-targets m r = Targets 0 (r ^. owner) 0 (r ^. name)
+targets m r ts = Targets 0 (r ^. owner) 0 (r ^. name) ts
 
 -- | Constructors for a target in Gregorian (y m d) time.
 target :: Bool -> MetricValue -> TargetDesc -> Integer -> Int -> Int -> Target

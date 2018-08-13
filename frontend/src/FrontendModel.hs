@@ -15,3 +15,6 @@ import           Model
 
 deriving instance Generic User
 deriving instance FromJSON User
+
+deriving instance Generic Region
+deriving instance FromJSON Region

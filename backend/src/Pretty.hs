@@ -28,13 +28,13 @@ class Pretty a where
   prettyLn :: a -> IO ()
   prettyLn = putStrLn . pretty
 
--- | Given amount of indent WITHOUT a newline.
+-- | Given amount of spaces.
 sn n = replicate n ' '
 
--- | Given amount of indent WITH a newline.
+-- | Given amount of spaces and a newline.
 ln n = "\n" ++ sn n
 
--- | The amount of spaces.
+-- | The spaces used for one level of indentation.
 spaces = 4
 
 -- * Pretty instances for common types/typeclasses.
