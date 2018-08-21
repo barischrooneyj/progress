@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-missing-fields #-}
+
 {-# LANGUAGE DeriveAnyClass         #-}
 {-# LANGUAGE DeriveGeneric          #-}
 {-# LANGUAGE FlexibleInstances      #-}
@@ -12,11 +14,11 @@ module BackendModel
   , module Model
   ) where
 
-import           Control.Lens
+import           Control.Lens              hiding (children)
 import           Data.Aeson                (FromJSON, ToJSON)
 import qualified Data.Set                  as Set
 import           Database.Store.Class      (Consistent, Identifiable, Storable,
-                                            Update (..), key, onAdd)
+                                            Update (..), key, onSet)
 import           GHC.Generics              (Generic)
 import           Numeric.Units.Dimensional (Dimension' (..))
 
@@ -56,9 +58,12 @@ instance Identifiable Region RegionName where
   key r = r ^. name
 instance Storable Region RegionName where
 instance Consistent Region RegionName where
-  -- onAdd = [updateProgress]
-  --   where updateProgress = Update (a ->
-  --           ())
+  onSet = const [updateRegionChildren]
+    where updateRegionChildren = Update $ \a -> (
+              Region{}
+            , Set.toList $ a ^. parents
+            , \(b :: Region) -> b & children %~ Set.insert (a ^. name)
+            )
 
 deriving instance Generic Region
 deriving instance ToJSON Region
@@ -71,11 +76,11 @@ instance Identifiable Progress ProgressKey where
   key p = (p ^. metric, p ^.region)
 instance Storable Progress ProgressKey
 instance Consistent Progress ProgressKey where
-  onAdd = const [updateRegion]
-    -- Add a reference to a 'Region' about this 'Progress'.
-    where updateRegion = Update $ \a -> (
-              [a ^. region],
-              \(b :: Region) -> b & progress %~ Set.insert (a ^. ident)
+  onSet = const [updateRegionProgress]
+    where updateRegionProgress = Update $ \a -> (
+              Region{}
+            , [a ^. region]
+            , \(b :: Region) -> b & progress %~ Set.insert (a ^. ident)
             )
 
 deriving instance Generic Progress

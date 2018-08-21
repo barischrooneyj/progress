@@ -59,20 +59,20 @@ example = void $ do
   -- A few regions including the root "World".
   world   <- Db.set $ C.region' jeremy  "World"
   germany <- Db.set $ C.region  jeremy  "Germany" world
-  france  <- Db.set $ C.region  gabriel "France"  world
+  Db.set $ C.region  gabriel "France"  world
 
   -- Some metrics, not connected to regions yet.
-  co2        <- Db.set $ C.metric  gabriel "CO2 Emissions" (SI.liter Dim./ SI.second)
-  plasticTax <- Db.set $ C.metric' gabriel "Plastic Tax"   "%"
+  -- co2        <- Db.set $ C.metric  gabriel "CO2 Emissions" (SI.liter Dim./ SI.second)
+  -- plasticTax <- Db.set $ C.metric' gabriel "Plastic Tax"   "%"
 
   -- Some progress for the regions.
-  Db.set $ C.progress co2        germany [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
-  Db.set $ C.progress co2        france  [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
-  Db.set $ C.progress plasticTax france  [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
-  Db.set $ C.progress plasticTax germany [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
+  -- Db.set $ C.progress co2        germany [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
+  -- Db.set $ C.progress co2        france  [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
+  -- Db.set $ C.progress plasticTax france  [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
+  -- Db.set $ C.progress plasticTax germany [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
 
   -- CO2 targets for France.
-  Db.set $ C.targets co2 france [
-      C.targetDecrease 35 "UN 2020"       2020 1 1
-    , C.targetDecrease 30 "National Plan" 2025 5 5
-    ]
+  -- Db.set $ C.targets co2 france [
+  --     C.targetDecrease 35 "UN 2020"       2020 1 1
+  --   , C.targetDecrease 30 "National Plan" 2025 5 5
+  --   ]
