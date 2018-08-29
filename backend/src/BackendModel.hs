@@ -17,8 +17,8 @@ module BackendModel
 import           Control.Lens              hiding (children)
 import           Data.Aeson                (FromJSON, ToJSON)
 import qualified Data.Set                  as Set
-import           Database.Store.Class      (Consistent, Identifiable, Storable,
-                                            Update (..), key, onSet)
+import           Database.Store.Class      (Identifiable, Storable (..),
+                                            Update (..), key)
 import           GHC.Generics              (Generic)
 import           Numeric.Units.Dimensional (Dimension' (..))
 
@@ -33,7 +33,6 @@ makeLensesWith camelCaseFields ''User
 instance Identifiable User Username where
   key u = u ^. username
 instance Storable User Username
-instance Consistent User Username
 
 deriving instance Generic User
 deriving instance ToJSON User
@@ -45,7 +44,6 @@ makeLensesWith camelCaseFields ''Metric
 instance Identifiable Metric MetricKey where
   key m = (m ^. name, m ^. dimension)
 instance Storable Metric MetricKey
-instance Consistent Metric MetricKey
 
 deriving instance Generic Metric
 deriving instance ToJSON Metric
@@ -57,7 +55,6 @@ makeLensesWith camelCaseFields ''Region
 instance Identifiable Region RegionName where
   key r = r ^. name
 instance Storable Region RegionName where
-instance Consistent Region RegionName where
   onSet = const [updateRegionChildren]
     where updateRegionChildren = Update $ \a -> (
               Region{}
@@ -74,8 +71,7 @@ makeLensesWith camelCaseFields ''Progress
 
 instance Identifiable Progress ProgressKey where
   key p = (p ^. metric, p ^.region)
-instance Storable Progress ProgressKey
-instance Consistent Progress ProgressKey where
+instance Storable Progress ProgressKey where
   onSet = const [updateRegionProgress]
     where updateRegionProgress = Update $ \a -> (
               Region{}
@@ -100,7 +96,6 @@ makeLensesWith camelCaseFields ''Targets
 instance Identifiable Targets TargetsKey where
   key t = (t ^. metric, t ^.region)
 instance Storable Targets TargetsKey
-instance Consistent Targets TargetsKey
 
 deriving instance Generic Targets
 deriving instance ToJSON Targets
@@ -111,7 +106,6 @@ makeLensesWith camelCaseFields ''Rep
 instance Identifiable Rep RepKey where
   key r = (r ^. name, r ^.region)
 instance Storable Rep RepKey
-instance Consistent Rep RepKey
 
 deriving instance Generic Rep
 deriving instance ToJSON Rep

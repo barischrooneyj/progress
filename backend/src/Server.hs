@@ -10,7 +10,8 @@ module Server where
 import qualified Control.Lens                    as L
 import           Control.Monad.IO.Class          (liftIO)
 import           Data.Maybe                      (fromJust)
-import           Database.Store.Class            (Consistent, Identifiable, Store (..))
+import           Database.Store.Class            (Identifiable, MonadStore (..),
+                                                  Storable)
 import           Database.Store.Store.InMemory   (InMemoryStore')
 import qualified Network.Wai.Handler.Warp        as Warp
 import           Servant                         (Application, Proxy (..), Raw,
@@ -31,7 +32,7 @@ staticPath = "frontend-result/bin/frontend-exe.jsexe/"
 serveAll db a = fromJust <$> liftIO (Db.run db $ viewAll a)
 
 -- | Serve first value of given type that satisfies the predicate.
-serveFirstWhere :: (Consistent a k) => String ->
+serveFirstWhere :: (Storable a k) => String ->
   InMemoryStore' -> a -> (a -> Bool) -> Handler a
 serveFirstWhere n db a f =
   (fromJust . fromJust) <$> liftIO (Db.run db $ firstWhere a f)
