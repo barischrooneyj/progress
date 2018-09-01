@@ -32,6 +32,7 @@ makeLensesWith camelCaseFields ''User
 
 instance Identifiable User Username where
   key u = u ^. username
+
 instance Storable User Username
 
 deriving instance Generic User
@@ -43,6 +44,7 @@ makeLensesWith camelCaseFields ''Metric
 
 instance Identifiable Metric MetricKey where
   key m = (m ^. name, m ^. dimension)
+
 instance Storable Metric MetricKey
 
 deriving instance Generic Metric
@@ -54,6 +56,7 @@ makeLensesWith camelCaseFields ''Region
 
 instance Identifiable Region RegionName where
   key r = r ^. name
+
 instance Storable Region RegionName where
   onSet = const [updateRegionChildren]
     where updateRegionChildren = Update $ \a -> (
@@ -71,6 +74,7 @@ makeLensesWith camelCaseFields ''Progress
 
 instance Identifiable Progress ProgressKey where
   key p = (p ^. metric, p ^.region)
+
 instance Storable Progress ProgressKey where
   onSet = const [updateRegionProgress]
     where updateRegionProgress = Update $ \a -> (
@@ -95,6 +99,7 @@ makeLensesWith camelCaseFields ''Targets
 
 instance Identifiable Targets TargetsKey where
   key t = (t ^. metric, t ^.region)
+
 instance Storable Targets TargetsKey
 
 deriving instance Generic Targets
@@ -103,10 +108,11 @@ deriving instance ToJSON Targets
 -- * 'Rep'.
 
 makeLensesWith camelCaseFields ''Rep
+
 instance Identifiable Rep RepKey where
   key r = (r ^. name, r ^.region)
+
 instance Storable Rep RepKey
 
 deriving instance Generic Rep
 deriving instance ToJSON Rep
-

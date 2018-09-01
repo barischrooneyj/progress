@@ -12,7 +12,7 @@ import           Text.Read                         (readMaybe)
 
 import           BackendModel
 import qualified Constructors                      as C
-import           Database                          (Store, newStore, run)
+import           Database                          (StoreOps (..), run)
 import           Model                             (User)
 import           Pretty                            (pretty, prettyLn)
 
@@ -37,7 +37,7 @@ import           Pretty                            (pretty, prettyLn)
 -- database contents.
 runExample :: IO ()
 runExample = do
-  db <- newStore [printYayWhenUserSet]
+  db <- Db.new [printYayWhenUserSet]
   run db example
   prettyLn db
   where printYayWhenUserSet s = Just $
@@ -46,7 +46,7 @@ runExample = do
             Nothing   -> putStrLn "Not User"
 
 -- | The contents of this function show how we can modify the database.
-example :: Store ()
+example :: StoreOps ()
 example = void $ do
   -- First create two users.
   gabriel <- Db.set $ C.user "gabmass"        "!@£$%^&*()"

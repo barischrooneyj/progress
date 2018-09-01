@@ -11,10 +11,14 @@ Regions have 'Targets' and the 'Progress' they have made towards those targets.
 
 ## Developing
 
-First clone this project and change into the directory: `git clone
-git@github.com:barischrooneyj/progress && cd progress`.
+First clone the project and update the submodules:
 
-Note that initial builds while take some time as dependencies are installed.
+```
+git clone git@github.com:barischrooneyj/progress && cd progress
+git submodule update --init --recursive
+```
+
+Note that initial builds will take a long time as dependencies are installed.
 
 ### Backend
 
