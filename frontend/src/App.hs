@@ -28,6 +28,6 @@ app = do
 reflexMain :: IO ()
 reflexMain = mainWidget app
 
--- | Serve a built frontend with @jsaddle-warp@.
+-- | Serve the frontend with @jsaddle-warp@.
 warpMain :: IO ()
 warpMain = Warp.run 3003 $ Core.mainWidget app

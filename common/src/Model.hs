@@ -58,7 +58,7 @@ data Region = Region {
   , _regionName     :: RegionName
   , _regionProgress :: Set ProgressId
   , _regionTargets  :: Set TargetsId
-  , _regionReps     :: [RepId] -- ^ Order of importance.
+  , _regionReps     :: [RepId]  -- ^ Order of importance.
   , _regionParents  :: Set RegionName
   , _regionChildren :: Set RegionName
   } deriving (Read, Show)

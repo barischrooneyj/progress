@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2874a8d2f6a9c7e8f83e2859fe6191639f7c6d024626777b4900cf0566995057
+-- hash: ed1ecaf18d1e4037f209666cc07698ac008a960d4d654c698c6f361d17b940b5
 
 name:           backend
 version:        0.1.0.0
@@ -54,6 +54,8 @@ library
     , time
     , tostring
     , transformers
+    , wai-cors
+    , wai-extra
     , warp
   default-language: Haskell2010
 
@@ -81,6 +83,8 @@ executable backend-exe
     , time
     , tostring
     , transformers
+    , wai-cors
+    , wai-extra
     , warp
   default-language: Haskell2010
 
@@ -108,6 +112,8 @@ executable backend-tutorial-exe
     , time
     , tostring
     , transformers
+    , wai-cors
+    , wai-extra
     , warp
   default-language: Haskell2010
 
@@ -136,5 +142,7 @@ test-suite backend-test
     , time
     , tostring
     , transformers
+    , wai-cors
+    , wai-extra
     , warp
   default-language: Haskell2010

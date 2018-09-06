@@ -43,7 +43,7 @@ runExample = do
   where printYayWhenUserSet s = Just $
           case (readMaybe s :: Maybe User) of
             Just user -> putStrLn $ "Yay, set " ++ pretty user
-            Nothing   -> putStrLn "Not User"
+            Nothing   -> pure ()
 
 -- | The contents of this function show how we can modify the database.
 example :: StoreOps ()

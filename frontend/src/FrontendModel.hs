@@ -8,7 +8,7 @@ module FrontendModel
   , module Model
   ) where
 
-import           Data.Aeson   (FromJSON, ToJSON)
+import           Data.Aeson   (FromJSON)
 import           GHC.Generics (Generic)
 
 import           Model

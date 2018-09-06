@@ -19,3 +19,4 @@ type API =
   :<|> "static"   :> Raw
   :<|> "region"   :> "name" :> ReqBody '[JSON] String
                   :> Post '[JSON] Region
+

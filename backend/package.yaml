@@ -36,6 +36,8 @@ dependencies:
 - tostring
 - transformers
 - warp
+- wai-cors
+- wai-extra
 
 library:
   source-dirs: src

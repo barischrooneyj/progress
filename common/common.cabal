@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 521ab600510c29e5a9e136fc7316cda43cfdd7cbd5714d8f45172a0248e422ec
+-- hash: 94c0dbf0dcbaae8109fb0f8e03af26a6c8394cca52885a05eeb4f39eadeac1f5
 
 name:           common
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      Config
       Model
   other-modules:
       Paths_common
