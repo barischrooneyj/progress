@@ -25,6 +25,7 @@ dependencies:
 - containers
 - common
 - dimensional
+- generic-lens
 - lens
 - monad-extras
 - mtl

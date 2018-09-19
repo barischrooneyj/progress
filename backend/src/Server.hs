@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
 
 {-# LANGUAGE DataKinds          #-}
+{-# LANGUAGE ConstraintKinds    #-}
 {-# LANGUAGE OverloadedStrings  #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeOperators      #-}
@@ -11,11 +12,10 @@ module Server where
 import qualified Control.Lens                    as L
 import           Control.Monad.IO.Class          (liftIO)
 import           Data.Maybe                      (fromJust)
-import           Database.Store.Class            (Identifiable, MonadStore (..),
-                                                  Storable)
+import           Database.Store.Class
 import           Database.Store.Store.InMemory   (InMemoryStore')
 import qualified Network.Wai.Handler.Warp        as Warp
-import Network.Wai.Middleware.RequestLogger (logStdoutDev)
+import           Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import           Servant                         (Application, Proxy (..), Raw,
                                                   Server, serve)
 import           Servant.API                     ((:<|>) (..), (:>), Capture,
@@ -29,20 +29,13 @@ import           Config
 import           BackendModel
 import qualified Database                        as Db
 
+-- data Env = Env { _envConfig :: Config }
+
 -- | Relative path to the static files directory from the 'frontend' directory.
 staticPath = "frontend-result/bin/frontend-exe.jsexe/"
 
--- | Serve a list of all stored values of given type.
-serveAll db a = fromJust <$> liftIO (Db.run db $ viewAll a)
-
--- | Serve first value of given type that satisfies the predicate.
-serveFirstWhere :: Storable a k =>
-  String -> InMemoryStore' -> a -> (a -> Bool) -> Handler a
-serveFirstWhere n db a f =
-  (fromJust . fromJust) <$> liftIO (Db.run db $ firstWhere a f)
-
 -- | Our server consists of handlers for each API endpoint.
-server :: InMemoryStore' -> Server API
+server :: MStore s m => s -> Server API
 server db =
        serveAll db Metric{}
   :<|> serveAll db User{}
@@ -53,20 +46,17 @@ server db =
   :<|> serveDirectoryWebApp staticPath
   :<|> \n -> serveFirstWhere n db Region{} (\r -> r L.^. name == n)
 
-apiProxy :: Proxy API
-apiProxy = Proxy
-
 -- | Application that combines the server and API.
-app :: InMemoryStore' -> Config -> Application
+app :: MStore s m => s -> Config -> Application
 app db config =
   if   _configCors config
   then corsApp db
-  else serve apiProxy $ server db
+  else serve (Proxy :: Proxy API) $ server db
 
-corsApp :: InMemoryStore' -> Application
+corsApp :: MStore s m => s -> Application
 corsApp db = logStdoutDev
     $ cors (const $ Just policy)
-    $ serve apiProxy (server db)
+    $ serve (Proxy :: Proxy API) $ server db
   where
   policy = simpleCorsResourcePolicy
            { corsRequestHeaders = ["Content-Type"] }
@@ -74,3 +64,14 @@ corsApp db = logStdoutDev
 -- | Run the application on a given port and with given database.
 run :: InMemoryStore' -> Config -> IO ()
 run db config = Warp.run (_configPort config) $ app db config
+
+-- | Serve a list of all stored values of given type.
+serveAll :: (MStore s m, Storable a k) =>
+  s -> a -> Handler [a]
+serveAll db a = fromJust <$> (liftIO $ Db.run db $ viewAll a)
+
+-- | Serve first value of given type that satisfies the predicate.
+serveFirstWhere :: (MStore s m, Storable a k) =>
+  String -> s -> a -> (a -> Bool) -> Handler a
+serveFirstWhere n db a f =
+  (fromJust . fromJust) <$> liftIO (Db.run db $ firstWhere a f)

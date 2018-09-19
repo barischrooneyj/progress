@@ -1,5 +1,13 @@
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
 
+{-# LANGUAGE AllowAmbiguousTypes       #-}
+{-# LANGUAGE DataKinds                 #-}
+{-# LANGUAGE DeriveGeneric             #-}
+{-# LANGUAGE DuplicateRecordFields     #-}
+{-# LANGUAGE FlexibleContexts          #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE TypeApplications          #-}
+
 {-# LANGUAGE DeriveAnyClass         #-}
 {-# LANGUAGE DeriveGeneric          #-}
 {-# LANGUAGE FlexibleInstances      #-}
@@ -58,7 +66,7 @@ instance Identifiable Region RegionName where
   key r = r ^. name
 
 instance Storable Region RegionName where
-  onSet = const [updateRegionChildren]
+  onSetUpdates = const [updateRegionChildren]
     where updateRegionChildren = Update $ \a -> (
               Region{}
             , Set.toList $ a ^. parents
@@ -76,7 +84,7 @@ instance Identifiable Progress ProgressKey where
   key p = (p ^. metric, p ^.region)
 
 instance Storable Progress ProgressKey where
-  onSet = const [updateRegionProgress]
+  onSetUpdates = const [updateRegionProgress]
     where updateRegionProgress = Update $ \a -> (
               Region{}
             , [a ^. region]

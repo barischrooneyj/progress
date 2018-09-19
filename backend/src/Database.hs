@@ -5,13 +5,7 @@ module Database
   ) where
 
 import Database.Store.Class
-import Database.Store.Store.InMemory (InMemoryStoreOps, runInMemoryStore)
+import Database.Store.Store.InMemory (InMemoryStoreOps)
 
 -- | Store operations.
 type StoreOps a = InMemoryStoreOps a
-
--- | The associated function to run database operations.
-run = runInMemoryStore
-
--- | The associated database constructor.
--- newStore = newInMemoryStore

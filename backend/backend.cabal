@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ed1ecaf18d1e4037f209666cc07698ac008a960d4d654c698c6f361d17b940b5
+-- hash: 1d7085ad1ed8a093184e1c68ae92e469ae6a4fe08a08ffffae4dbc03608ffcb6
 
 name:           backend
 version:        0.1.0.0
@@ -44,6 +44,7 @@ library
     , common
     , containers
     , dimensional
+    , generic-lens
     , lens
     , monad-extras
     , mtl
@@ -73,6 +74,7 @@ executable backend-exe
     , common
     , containers
     , dimensional
+    , generic-lens
     , lens
     , monad-extras
     , mtl
@@ -102,6 +104,7 @@ executable backend-tutorial-exe
     , common
     , containers
     , dimensional
+    , generic-lens
     , lens
     , monad-extras
     , mtl
@@ -132,6 +135,7 @@ test-suite backend-test
     , common
     , containers
     , dimensional
+    , generic-lens
     , lens
     , monad-extras
     , mtl

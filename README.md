@@ -9,6 +9,15 @@ region, the idea is more broad than that. A region in this model could be quite
 abstract, perhaps most generally considered as a set of grouped issues/targets.
 Regions have `Targets` and the `Progress` they have made towards those targets.
 
+## Architecture
+
+This project is structured as three Haskell packages, `frontend`, `backend`, and
+`common`. The frontend is a [Reflex](https://github.com/reflex-frp/reflex)
+application, the backend is a [Servant](https://haskell-servant.github.io/)
+application and common contains data types used by both packages. A good place
+to start looking at is [Model.hs](common/src/Model.hs) which contains all the
+important data types of this project, the model.
+
 ## Developing
 
 First clone the project and pull all submodules:
@@ -30,7 +39,7 @@ You can build the backend with `stack build`. To build on file changes use
 `stack build --file-watch --fast`, or `ghcid` from the `backend` directory for a
 faster type check without building.
 
-After building you can run the server with `stack exec backend-exe`. Visit
+After building you can run the server with `stack exec backend-exe dev`. Visit
 `localhost:8081/region/all` to confirm all is well.
 
 To enter an interactive database session run `./interact.sh`. This will land you
@@ -39,7 +48,7 @@ interactive usage to be found in the [Tutorial.hs](backend/src/Tutorial.hs).
 
 ### Frontend
 
-While developing we build with GHC instead of GHCJS for a faster build. This
+While developing build with GHC instead of GHCJS for a faster build. This
 generates an executable which will serve the frontend at `localhost:3003`. To
 guild with GHC: `nix-build -o frontend-warp -A ghc.frontend`, then run the
 executable with `frontend-warp/bin/frontend-warp-exe`.
