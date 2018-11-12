@@ -8,4 +8,3 @@ import Database.Store.Class
 import Database.Store.Store.InMemory (InMemoryStoreOps)
 
 -- | Store operations.
-type StoreOps a = InMemoryStoreOps a

@@ -9,7 +9,7 @@ import qualified Numeric.Units.Dimensional as Dim
 
 import           BackendModel
 
--- | Constructor for a user.
+-- | Constructor for a user without a home.
 user :: Username -> PasswordHash -> User
 user u ph = User u Nothing ph
 

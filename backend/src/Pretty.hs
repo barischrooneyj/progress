@@ -10,7 +10,7 @@ import           Data.Foldable                 (Foldable)
 import qualified Data.Map                      as Map
 import           Data.Maybe                    (fromJust, isJust)
 import           Data.Time.Calendar            (toGregorian)
-import           Database.Store.Store.InMemory (InMemoryStore' (..))
+import           Database.Store.Store.InMemory (InMemoryStore (..))
 import           Numeric.Units.Dimensional     (Dimension' (..))
 import           Text.Read                     (readMaybe)
 
@@ -18,10 +18,10 @@ import           BackendModel
 
 -- | Our pretty printing typeclass.
 class Pretty a where
-  -- | A pretty representation of a type.
+  -- | A pretty representation of a value.
   pretty :: a -> String
   pretty = prettyN 0
-  -- | Pretty with given spacesation.
+  -- | Pretty with given amount of spaces.
   prettyN :: Int -> a -> String
   prettyN n a = sn n ++ pretty a
   -- | Pretty print to standard out.
@@ -52,7 +52,7 @@ instance (Pretty a, Pretty b) => Pretty (Either a b) where
   prettyN n (Left x)  = prettyN n x
   prettyN n (Right x) = prettyN n x
 
--- | Of course we can print a string.
+-- | A string is shown as itself.
 instance Pretty String where
   prettyN n a = sn n ++ a
 
@@ -121,8 +121,8 @@ instance Pretty Rep where
     ]
 
 -- | A simple way to show the entire database without looking at types.
-instance Pretty InMemoryStore' where
-  prettyLn (InMemoryStore' mapMVar _unusedEventHandlers) = do
+instance Pretty InMemoryStore where
+  prettyLn (InMemoryStore mapMVar _unusedEventHandlers) = do
     db <- readMVar mapMVar
     -- We subtract 'spaces' amount of spaces here to have each element in
     -- line with the opening list. This means all elements are aligned to the

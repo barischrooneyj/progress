@@ -8,14 +8,14 @@ module Tutorial where
 
 import           Control.Monad                     (void)
 import qualified Database.Store.Class              as Db
-import           Database.Store.Store.InMemory     (InMemoryStore' (..))
+import           Database.Store.Store.InMemory     (InMemoryStore (..))
 import           Numeric.Units.Dimensional         as Dim
 import qualified Numeric.Units.Dimensional.SIUnits as SI
 import           Text.Read                         (readMaybe)
 
 import           BackendModel
 import qualified Constructors                      as C
-import           Database                          (StoreOps (..), run)
+import           Database
 import           Model                             (Region, User)
 import           Pretty                            (pretty, prettyLn)
 
@@ -40,7 +40,7 @@ import           Pretty                            (pretty, prettyLn)
 -- database contents.
 runExample :: IO ()
 runExample = do
-  db <- Db.new [printYayWhenUserSet] :: IO InMemoryStore'
+  db <- Db.new [printYayWhenUserSet] :: IO InMemoryStore
   Db.run db example
   prettyLn db
   where printYayWhenUserSet s = Just $
@@ -48,8 +48,10 @@ runExample = do
             Just user -> putStrLn $ "Yay, set " ++ pretty user
             Nothing   -> pure ()
 
--- | The contents of this function show how we can modify the database.
-example :: StoreOps ()
+-- | The contents of this function show how we can modify the database. The type
+-- signature says this function can run in any monad 'm' which satisfies
+-- 'MStore' with some backend 's'.
+example :: MStore s m => m ()
 example = void $ do
 
   -- First we create two users.

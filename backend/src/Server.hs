@@ -13,7 +13,7 @@ import qualified Control.Lens                    as L
 import           Control.Monad.IO.Class          (liftIO)
 import           Data.Maybe                      (fromJust)
 import           Database.Store.Class
-import           Database.Store.Store.InMemory   (InMemoryStore')
+import           Database.Store.Store.InMemory   (InMemoryStore)
 import qualified Network.Wai.Handler.Warp        as Warp
 import           Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import           Servant                         (Application, Proxy (..), Raw,
@@ -62,7 +62,7 @@ corsApp db = logStdoutDev
            { corsRequestHeaders = ["Content-Type"] }
 
 -- | Run the application on a given port and with given database.
-run :: InMemoryStore' -> Config -> IO ()
+run :: InMemoryStore -> Config -> IO ()
 run db config = Warp.run (_configPort config) $ app db config
 
 -- | Serve a list of all stored values of given type.
@@ -73,5 +73,5 @@ serveAll db a = fromJust <$> (liftIO $ Db.run db $ viewAll a)
 -- | Serve first value of given type that satisfies the predicate.
 serveFirstWhere :: (MStore s m, Storable a k) =>
   String -> s -> a -> (a -> Bool) -> Handler a
-serveFirstWhere n db a f =
+serveFirstWhere _unusedWhatIsIt db a f =
   (fromJust . fromJust) <$> liftIO (Db.run db $ firstWhere a f)

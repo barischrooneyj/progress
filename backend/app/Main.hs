@@ -6,7 +6,7 @@ import           System.Environment (getArgs)
 
 import           Config
 import qualified Database           as Db
-import           Server             (run)
+import qualified Server
 import           Tutorial           (example)
 
 main :: IO ()
@@ -20,4 +20,4 @@ main = do
       putStrLn "Populating database from 'Tutorial.example'"
       Db.run db example
       putStrLn $ "Starting server on port " ++ show (_configPort config)
-      run db config
+      Server.run db config
