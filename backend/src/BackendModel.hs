@@ -25,10 +25,11 @@ module BackendModel
 import           Control.Lens              hiding (children)
 import           Data.Aeson                (FromJSON, ToJSON)
 import qualified Data.Set                  as Set
-import           Database.Store.Class      (Identifiable, Storable (..),
-                                            Update (..), key)
 import           GHC.Generics              (Generic)
 import           Numeric.Units.Dimensional (Dimension' (..))
+
+import           Telescope.Class           (Identifiable, Storable (..),
+                                            Update (..), key)
 
 import           Model
 
@@ -43,7 +44,6 @@ instance Identifiable User Username where
 
 instance Storable User Username
 
-deriving instance Generic User
 deriving instance ToJSON User
 
 -- * 'Metric'.
@@ -55,7 +55,6 @@ instance Identifiable Metric MetricKey where
 
 instance Storable Metric MetricKey
 
-deriving instance Generic Metric
 deriving instance ToJSON Metric
 
 -- * 'Region'.
@@ -73,7 +72,6 @@ instance Storable Region RegionName where
             , \(b :: Region) -> b & children %~ Set.insert (a ^. name)
             )
 
-deriving instance Generic Region
 deriving instance ToJSON Region
 
 -- * 'Progress'.
@@ -91,14 +89,12 @@ instance Storable Progress ProgressKey where
             , \(b :: Region) -> b & progress %~ Set.insert (a ^. ident)
             )
 
-deriving instance Generic Progress
 deriving instance ToJSON Progress
 
 -- * 'Target'.
 
 makeLensesWith camelCaseFields ''Target
 
-deriving instance Generic Target
 deriving instance ToJSON Target
 
 -- * 'Targets'.
@@ -110,7 +106,6 @@ instance Identifiable Targets TargetsKey where
 
 instance Storable Targets TargetsKey
 
-deriving instance Generic Targets
 deriving instance ToJSON Targets
 
 -- * 'Rep'.
@@ -122,5 +117,4 @@ instance Identifiable Rep RepKey where
 
 instance Storable Rep RepKey
 
-deriving instance Generic Rep
 deriving instance ToJSON Rep

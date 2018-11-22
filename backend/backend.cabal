@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1d7085ad1ed8a093184e1c68ae92e469ae6a4fe08a08ffffae4dbc03608ffcb6
+-- hash: a0dd3b91b521241ee9b63990f7bcfabb1d92e72740d7c36f2f09e150f68e4ad8
 
 name:           backend
 version:        0.1.0.0
@@ -30,7 +30,6 @@ library
       API
       BackendModel
       Constructors
-      Database
       Pretty
       Server
       Tutorial
@@ -51,7 +50,7 @@ library
     , pretty-simple
     , servant
     , servant-server
-    , simple-store
+    , telescope
     , time
     , tostring
     , transformers
@@ -81,7 +80,7 @@ executable backend-exe
     , pretty-simple
     , servant
     , servant-server
-    , simple-store
+    , telescope
     , time
     , tostring
     , transformers
@@ -111,7 +110,7 @@ executable backend-tutorial-exe
     , pretty-simple
     , servant
     , servant-server
-    , simple-store
+    , telescope
     , time
     , tostring
     , transformers
@@ -142,7 +141,7 @@ test-suite backend-test
     , pretty-simple
     , servant
     , servant-server
-    , simple-store
+    , telescope
     , time
     , tostring
     , transformers

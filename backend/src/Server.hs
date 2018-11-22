@@ -9,25 +9,25 @@
 -- | Server for interacting with the database over a network.
 module Server where
 
-import qualified Control.Lens                    as L
-import           Control.Monad.IO.Class          (liftIO)
-import           Data.Maybe                      (fromJust)
-import           Database.Store.Class
-import           Database.Store.Store.InMemory   (InMemoryStore)
-import qualified Network.Wai.Handler.Warp        as Warp
+import qualified Control.Lens                         as L
+import           Control.Monad.IO.Class               (liftIO)
+import           Data.Maybe                           (fromJust)
+import           Network.Wai.Middleware.Cors
+import qualified Network.Wai.Handler.Warp             as Warp
 import           Network.Wai.Middleware.RequestLogger (logStdoutDev)
-import           Servant                         (Application, Proxy (..), Raw,
-                                                  Server, serve)
-import           Servant.API                     ((:<|>) (..), (:>), Capture,
-                                                  Get, JSON)
-import           Servant.Server.Internal.Handler (Handler)
-import           Servant.Server.StaticFiles      (serveDirectoryWebApp)
-import Network.Wai.Middleware.Cors
+import           Servant                              (Application, Proxy (..), Raw,
+                                                       Server, serve)
+import           Servant.API                          ((:<|>) (..), (:>), Capture,
+                                                       Get, JSON)
+import           Servant.Server.Internal.Handler      (Handler)
+import           Servant.Server.StaticFiles           (serveDirectoryWebApp)
+
+import           Telescope.Class                      ()
+import           Telescope.Store.File                 (File)
 
 import           API
 import           Config
 import           BackendModel
-import qualified Database                        as Db
 
 -- data Env = Env { _envConfig :: Config }
 
@@ -35,28 +35,28 @@ import qualified Database                        as Db
 staticPath = "frontend-result/bin/frontend-exe.jsexe/"
 
 -- | Our server consists of handlers for each API endpoint.
-server :: MStore s m => s -> Server API
-server db =
-       serveAll db Metric{}
-  :<|> serveAll db User{}
-  :<|> serveAll db Region{}
-  :<|> serveAll db Progress{}
-  :<|> serveAll db Targets{}
-  :<|> serveAll db Rep{}
+server :: Config s -> Server API
+server config =
+       serveAll config Metric{}
+  :<|> serveAll config User{}
+  :<|> serveAll config Region{}
+  :<|> serveAll config Progress{}
+  :<|> serveAll config Targets{}
+  :<|> serveAll config Rep{}
   :<|> serveDirectoryWebApp staticPath
   :<|> \n -> serveFirstWhere n db Region{} (\r -> r L.^. name == n)
 
 -- | Application that combines the server and API.
-app :: MStore s m => s -> Config -> Application
-app db config =
+app :: Config s -> Application
+app config =
   if   _configCors config
   then corsApp db
   else serve (Proxy :: Proxy API) $ server db
 
-corsApp :: MStore s m => s -> Application
-corsApp db = logStdoutDev
+corsApp :: Config s -> Application
+corsApp config = logStdoutDev
     $ cors (const $ Just policy)
-    $ serve (Proxy :: Proxy API) $ server db
+    $ serve (Proxy :: Proxy API) $ server config
   where
   policy = simpleCorsResourcePolicy
            { corsRequestHeaders = ["Content-Type"] }

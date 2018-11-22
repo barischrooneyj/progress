@@ -1,6 +1,6 @@
 [submodule "reflex-platform"]
 	path = reflex-platform
 	url = git@github.com:reflex-frp/reflex-platform
-[submodule "simple-store"]
-	path = backend/simple-store
-	url = git@github.com:barischrooneyj/simple-store
+[submodule "telescope"]
+	path = telescope
+	url = git@github.com:barischrooneyj/telescope

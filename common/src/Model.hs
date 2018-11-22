@@ -1,11 +1,15 @@
-{-# LANGUAGE StandaloneDeriving     #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 -- | Modeling the progress and targets of regions.
 module Model where
 
-import           Data.Set                  (Set)
-import           Data.Time.Calendar        (Day)
-import           Numeric.Units.Dimensional (Dimension' (..))
+import Data.Serialize            (Serialize)
+import Data.Set                  (Set)
+import Data.Time.Calendar        (Day (..))
+import Data.Typeable             (Typeable)
+import GHC.Generics              (Generic)
+import Numeric.Units.Dimensional (Dimension' (..))
 
 -- | First our many type aliases!
 type DateTime        = Day
@@ -35,20 +39,27 @@ type TargetsId       = ID
 type Username        = String
 
 deriving instance Read Dimension'
+deriving instance Generic Day
+instance Serialize Dimension'
+instance Serialize Day
 
 -- | A user of the website.
 data User = User {
     _userUsername :: Username
   , _userHome     :: Maybe RegionName
   , _userPwdHash  :: PasswordHash
-  } deriving (Read, Show)
+  } deriving (Read, Show, Typeable, Generic)
+
+instance Serialize User
 
 -- | A measurable quantity like "CO2 emissions" or "Plastic tax".
 data Metric = Metric {
     _metricOwner     :: Username
   , _metricName      :: MetricName
   , _metricDimension :: MetricDimension
-  } deriving (Read, Show)
+  } deriving (Read, Show, Typeable, Generic)
+
+instance Serialize Metric
 
 -- | Progress and targets for multiple metrics, under one region. Regions are
 -- unique by name, so there can only be one "France" or "EU".
@@ -61,7 +72,9 @@ data Region = Region {
   , _regionReps     :: [RepId]  -- ^ Order of importance.
   , _regionParents  :: Set RegionName
   , _regionChildren :: Set RegionName
-  } deriving (Read, Show)
+  } deriving (Read, Show, Typeable, Generic)
+
+instance Serialize Region
 
 -- | Measurements for one (metric, region).
 data Progress = Progress {
@@ -71,7 +84,9 @@ data Progress = Progress {
   , _progressRegion :: RegionName
   , _progressReps   :: [RepId]
   , _progressValues :: [Measurement]
-  } deriving (Read, Show)
+  } deriving (Read, Show, Typeable, Generic)
+
+instance Serialize Progress
 
 -- | A target for some metric with a description.
 -- Compared by all fields.
@@ -80,7 +95,9 @@ data Target = Target {
   , _targetValue       :: MetricValue
   , _targetDescription :: TargetDesc
   , _targetDate        :: DateTime
-  } deriving (Eq, Ord, Read, Show)
+  } deriving (Eq, Ord, Read, Show, Typeable, Generic)
+
+instance Serialize Target
 
 -- | Targets for one (metric, region).
 data Targets = Targets {
@@ -89,7 +106,9 @@ data Targets = Targets {
   , _targetsMetric :: MetricId
   , _targetsRegion :: RegionName
   , _targetsValues :: [Target]
-  } deriving (Read, Show)
+  } deriving (Read, Show, Typeable, Generic)
+
+instance Serialize Targets
 
 -- | A contactable representative.
 data Rep = Rep {
@@ -99,4 +118,6 @@ data Rep = Rep {
   , _repRegion :: RegionName
   , _repEmail  :: [Email]
   , _repPhone  :: [Phone]
-  } deriving (Read, Show)
+  } deriving (Read, Show, Typeable, Generic)
+
+instance Serialize Rep

@@ -10,11 +10,15 @@ import           Data.Foldable                 (Foldable)
 import qualified Data.Map                      as Map
 import           Data.Maybe                    (fromJust, isJust)
 import           Data.Time.Calendar            (toGregorian)
-import           Database.Store.Store.InMemory (InMemoryStore (..))
+import           Data.Typeable                 (Typeable)
 import           Numeric.Units.Dimensional     (Dimension' (..))
 import           Text.Read                     (readMaybe)
 
+import           Telescope.Class               (Config)
+import           Telescope.Store.File          (File (..))
+
 import           BackendModel
+
 
 -- | Our pretty printing typeclass.
 class Pretty a where
@@ -121,13 +125,15 @@ instance Pretty Rep where
     ]
 
 -- | A simple way to show the entire database without looking at types.
-instance Pretty InMemoryStore where
-  prettyLn (InMemoryStore mapMVar _unusedEventHandlers) = do
-    db <- readMVar mapMVar
+instance Typeable s => Pretty (Config s) where
+  prettyLn = putStrLn . show
+    -- db <- readMVar mapMVar
+
     -- We subtract 'spaces' amount of spaces here to have each element in
     -- line with the opening list. This means all elements are aligned to the
     -- left margin when printing an entire database.
-    putStrLn $ prettyN (-spaces) $ map (prettyStoreValue 0) $ Map.elems db
+
+    -- putStrLn $ prettyN (-spaces) $ map (prettyStoreValue 0) $ Map.elems db
 
 -- | Attempt to parse the given string as each possible type until success, then
 -- return the pretty string of the parsed value.
