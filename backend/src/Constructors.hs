@@ -4,14 +4,15 @@ module Constructors where
 import           Control.Lens
 import qualified Data.Set                  as Set
 import           Data.Time.Calendar        (fromGregorian)
-import           Database.Store.Class      (Identifiable (key))
 import qualified Numeric.Units.Dimensional as Dim
+
+import           Telescope.Class           (Identifiable (key))
 
 import           BackendModel
 
 -- | Constructor for a user without a home.
 user :: Username -> PasswordHash -> User
-user u ph = User u Nothing ph
+user u ph = User u ph Nothing
 
 -- | Constructor for a metric with dimension (like m/s).
 metric :: Dim.HasDimension a => User -> MetricName -> a -> Metric

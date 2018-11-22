@@ -46,8 +46,8 @@ instance Serialize Day
 -- | A user of the website.
 data User = User {
     _userUsername :: Username
-  , _userHome     :: Maybe RegionName
   , _userPwdHash  :: PasswordHash
+  , _userHome     :: Maybe RegionName
   } deriving (Read, Show, Typeable, Generic)
 
 instance Serialize User

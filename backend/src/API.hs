@@ -9,13 +9,4 @@ import           Servant.API
 
 import           Model
 
-type API =
-       "metric"   :> "all" :> Get '[JSON] [Metric]
-  :<|> "user"     :> "all" :> Get '[JSON] [User]
-  :<|> "region"   :> "all" :> Get '[JSON] [Region]
-  :<|> "progress" :> "all" :> Get '[JSON] [Progress]
-  :<|> "targets"  :> "all" :> Get '[JSON] [Targets]
-  :<|> "rep"      :> "all" :> Get '[JSON] [Rep]
-  :<|> "static"   :> Raw
-  :<|> "region"   :> "name" :> ReqBody '[JSON] String
-                  :> Post '[JSON] Region
+type StaticAPI = "static" :> Raw

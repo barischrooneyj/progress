@@ -9,9 +9,6 @@
 -- | Server for interacting with the database over a network.
 module Server where
 
-import qualified Control.Lens                         as L
-import           Control.Monad.IO.Class               (liftIO)
-import           Data.Maybe                           (fromJust)
 import           Network.Wai.Middleware.Cors
 import qualified Network.Wai.Handler.Warp             as Warp
 import           Network.Wai.Middleware.RequestLogger (logStdoutDev)
@@ -22,56 +19,36 @@ import           Servant.API                          ((:<|>) (..), (:>), Captur
 import           Servant.Server.Internal.Handler      (Handler)
 import           Servant.Server.StaticFiles           (serveDirectoryWebApp)
 
-import           Telescope.Class                      ()
+import           Telescope.Class                      (StoreConfig, Store)
 import           Telescope.Store.File                 (File)
 
-import           API
-import           Config
-import           BackendModel
+import           API                                  (StaticAPI)
+import           Config                               (Config (..))
 
--- data Env = Env { _envConfig :: Config }
-
--- | Relative path to the static files directory from the 'frontend' directory.
+-- | Path to the static files directory from the 'frontend' directory.
 staticPath = "frontend-result/bin/frontend-exe.jsexe/"
 
--- | Our server consists of handlers for each API endpoint.
-server :: Config s -> Server API
-server config =
-       serveAll config Metric{}
-  :<|> serveAll config User{}
-  :<|> serveAll config Region{}
-  :<|> serveAll config Progress{}
-  :<|> serveAll config Targets{}
-  :<|> serveAll config Rep{}
-  :<|> serveDirectoryWebApp staticPath
-  :<|> \n -> serveFirstWhere n db Region{} (\r -> r L.^. name == n)
+-- | A server for static file built for the frontend.
+staticFileServer :: Config -> Server StaticAPI
+staticFileServer config = serveDirectoryWebApp staticPath
 
--- | Application that combines the server and API.
-app :: Config s -> Application
-app config =
-  if   _configCors config
-  then corsApp db
-  else serve (Proxy :: Proxy API) $ server db
+-- | Choose between production/dev app.
+app :: Store s => Config -> StoreConfig s -> Application
+app config dataConfig =
+  if True then corsApp config else simpleApp config dataConfig
 
-corsApp :: Config s -> Application
+corsApp :: Config -> Application
 corsApp config = logStdoutDev
     $ cors (const $ Just policy)
-    $ serve (Proxy :: Proxy API) $ server config
+    $ serve (Proxy :: Proxy StaticAPI) $ staticFileServer config
   where
   policy = simpleCorsResourcePolicy
            { corsRequestHeaders = ["Content-Type"] }
 
+simpleApp :: Store s => Config -> StoreConfig s -> Application
+simpleApp config storeConfig =
+  serve (Proxy :: Proxy StaticAPI) $ staticFileServer config
+
 -- | Run the application on a given port and with given database.
-run :: InMemoryStore -> Config -> IO ()
-run db config = Warp.run (_configPort config) $ app db config
-
--- | Serve a list of all stored values of given type.
-serveAll :: (MStore s m, Storable a k) =>
-  s -> a -> Handler [a]
-serveAll db a = fromJust <$> (liftIO $ Db.run db $ viewAll a)
-
--- | Serve first value of given type that satisfies the predicate.
-serveFirstWhere :: (MStore s m, Storable a k) =>
-  String -> s -> a -> (a -> Bool) -> Handler a
-serveFirstWhere _unusedWhatIsIt db a f =
-  (fromJust . fromJust) <$> liftIO (Db.run db $ firstWhere a f)
+run :: Store s => Config -> StoreConfig s -> IO ()
+run config storeConfig = Warp.run (_configPort config) $ app config storeConfig

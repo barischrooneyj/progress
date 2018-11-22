@@ -7,15 +7,15 @@
 module Tutorial where
 
 import           Control.Monad                     (void)
-import qualified Database.Store.Class              as Db
-import           Database.Store.Store.InMemory     (InMemoryStore (..))
 import           Numeric.Units.Dimensional         as Dim
 import qualified Numeric.Units.Dimensional.SIUnits as SI
 import           Text.Read                         (readMaybe)
 
+import qualified Telescope.Class
+import           Telescope.Store.File              (File (..))
+
 import           BackendModel
 import qualified Constructors                      as C
-import           Database
 import           Model                             (Region, User)
 import           Pretty                            (pretty, prettyLn)
 
@@ -38,7 +38,7 @@ import           Pretty                            (pretty, prettyLn)
 -- handler that prints a message whenever a 'User' is set in the database. Then
 -- we run a few operation, namely the 'example' below and also print the entire
 -- database contents.
-runExample :: IO ()
+runExample :: StoreConfig -> IO ()
 runExample = do
   db <- Db.new [printYayWhenUserSet] :: IO InMemoryStore
   Db.run db example
