@@ -19,15 +19,17 @@ import           Telescope.Store.File          (File (..))
 
 import           BackendModel
 
-
--- | Our pretty printing typeclass.
+-- | A typeclass for pretty printing.
 class Pretty a where
+
   -- | A pretty representation of a value.
   pretty :: a -> String
   pretty = prettyN 0
+
   -- | Pretty with given amount of spaces.
   prettyN :: Int -> a -> String
   prettyN n a = sn n ++ pretty a
+
   -- | Pretty print to standard out.
   prettyLn :: a -> IO ()
   prettyLn = putStrLn . pretty

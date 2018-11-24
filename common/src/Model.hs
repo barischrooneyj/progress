@@ -11,7 +11,7 @@ import Data.Typeable             (Typeable)
 import GHC.Generics              (Generic)
 import Numeric.Units.Dimensional (Dimension' (..))
 
--- | First our many type aliases!
+-- | First our many type synonyms!
 type DateTime        = Day
 type Dimension       = Dimension'
 type DimensionName   = String

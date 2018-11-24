@@ -1,23 +1,22 @@
--- | Start the Progress server.
+-- | Start a server serving Progress backend and frontend.
 module Main where
 
-import           Data.Map           as Map
 import           System.Environment (getArgs)
 
-import           Config
-import qualified Database           as Db
+import           Telescope.Class    (runWith)
+
+import           Config             (getConfig, _configStoreConfig)
 import qualified Server
-import           Tutorial           (example)
+import qualified Tutorial
 
 main :: IO ()
 main = do
   [configName] <- getArgs
-  case Map.lookup configName configMap of
-    Nothing -> putStrLn $ "No such config '" ++ configName ++ "'"
+  case getConfig configName of
+    Nothing -> putStrLn $ "No Config named '" ++ configName ++ "'"
     Just config -> do
-      putStrLn $ "Using " ++ configName ++ " config"
-      db <- Db.new []
+      putStrLn $ "Using Config: " ++ show config
       putStrLn "Populating database from 'Tutorial.example'"
-      Db.run db example
+      runWith (_configStoreConfig config) Tutorial.example
       putStrLn $ "Starting server on port " ++ show (_configPort config)
-      Server.run db config
+      Server.runStoreServer config

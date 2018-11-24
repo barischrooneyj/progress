@@ -1,17 +1,21 @@
 module Config where
 
-import           Data.Map (Map)
-import qualified Data.Map as Map
+import           Telescope.Class      (StoreConfig, newStoreConfig)
+import           Telescope.Store.File (File (File))
 
--- | Runtime information which changes based on deployment.
+-- | Configuration options based on deployment.
 data Config = Config {
-    _configCors :: Bool
-  , _configPort :: Int
-  } deriving (Read, Show)
+    _configCors        :: Bool
+  , _configPort        :: Int
+  , _configStoreConfig :: StoreConfig File
+  } deriving Show
 
-devConfig = Config True 8081
+devConfig :: IO Config
+devConfig = do
+  storeConfig <- newStoreConfig "dev" File
+  pure $ Config True 8081 storeConfig
 
-configMap :: Map String Config
-configMap = Map.fromList [
-  ("dev", devConfig)
-  ]
+getConfig :: String -> IO (Maybe Config)
+getConfig = \case
+  "dev"     -> Just <$> devConfig
+  otherwise -> pure Nothing

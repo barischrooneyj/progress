@@ -20,6 +20,7 @@ import           Servant.Server.Internal.Handler      (Handler)
 import           Servant.Server.StaticFiles           (serveDirectoryWebApp)
 
 import           Telescope.Class                      (StoreConfig, Store)
+import           Telescope.Server
 import           Telescope.Store.File                 (File)
 
 import           API                                  (StaticAPI)
@@ -33,22 +34,27 @@ staticFileServer :: Config -> Server StaticAPI
 staticFileServer config = serveDirectoryWebApp staticPath
 
 -- | Choose between production/dev app.
-app :: Store s => Config -> StoreConfig s -> Application
-app config dataConfig =
-  if True then corsApp config else simpleApp config dataConfig
+app :: Config -> Application
+app config = if True then corsApp config else simpleApp config
 
 corsApp :: Config -> Application
 corsApp config = logStdoutDev
     $ cors (const $ Just policy)
-    $ serve (Proxy :: Proxy StaticAPI) $ staticFileServer config
+    $ serve (Proxy :: Proxy StaticAPI)
+    $ staticFileServer config
   where
   policy = simpleCorsResourcePolicy
            { corsRequestHeaders = ["Content-Type"] }
 
-simpleApp :: Store s => Config -> StoreConfig s -> Application
-simpleApp config storeConfig =
-  serve (Proxy :: Proxy StaticAPI) $ staticFileServer config
+simpleApp :: Config -> Application
+simpleApp config = serve (Proxy :: Proxy StaticAPI) $ staticFileServer config
 
 -- | Run the application on a given port and with given database.
-run :: Store s => Config -> StoreConfig s -> IO ()
-run config storeConfig = Warp.run (_configPort config) $ app config storeConfig
+run :: Config -> IO ()
+run config = Warp.run (_configPort config) $ app config
+
+type ProgressAPI = StoreAPI :<|> StaticAPI
+
+progressServer :: Config -> Server ProgressAPI
+progressServer config =
+  (storeServer $ _configStoreConfig config) :<|> (staticFileServer config)

@@ -11,7 +11,7 @@ import           Numeric.Units.Dimensional         as Dim
 import qualified Numeric.Units.Dimensional.SIUnits as SI
 import           Text.Read                         (readMaybe)
 
-import qualified Telescope.Class
+import           Telescope.Class                   (MStoreA, StoreConfig, Store (..))
 import           Telescope.Store.File              (File (..))
 
 import           BackendModel
@@ -38,46 +38,41 @@ import           Pretty                            (pretty, prettyLn)
 -- handler that prints a message whenever a 'User' is set in the database. Then
 -- we run a few operation, namely the 'example' below and also print the entire
 -- database contents.
-runExample :: StoreConfig -> IO ()
-runExample = do
-  db <- Db.new [printYayWhenUserSet] :: IO InMemoryStore
-  Db.run db example
-  prettyLn db
-  where printYayWhenUserSet s = Just $
-          case (readMaybe s :: Maybe User) of
-            Just user -> putStrLn $ "Yay, set " ++ pretty user
-            Nothing   -> pure ()
+runExample :: Store s => StoreConfig s -> IO ()
+runExample = const $ pure ()
+  -- db <- Db.new [printYayWhenUserSet] :: IO InMemoryStore
+  -- Db.run db example
+  -- prettyLn db
+  -- where printYayWhenUserSet s = Just $
+  --         case (readMaybe s :: Maybe User) of
+  --           Just user -> putStrLn $ "Yay, set " ++ pretty user
+            -- Nothing   -> pure ()
 
--- | The contents of this function show how we can modify the database. The type
--- signature says this function can run in any monad 'm' which satisfies
--- 'MStore' with some backend 's'.
-example :: MStore s m => m ()
+-- | An example of how we can modify stored values.
+example :: MStoreA ()
 example = void $ do
 
   -- First we create two users.
-  gabriel <- Db.set $ C.user "gabmass"        "!@£$%^&*()"
-  jeremy  <- Db.set $ C.user "barischrooneyj" "!@£$%^&*()"
+  gabriel <- set $ C.user "gabmass"        "!@£$%^&*()"
+  jeremy  <- set $ C.user "barischrooneyj" "!@£$%^&*()"
 
-  -- You can perform IO in the 'StoreOps' monad.
-  -- liftIO $ prettyLn gabriel
+  -- Then create a few regions, including "Earth".
+  world   <- set $ C.region' jeremy  "Earth"
+  germany <- set $ C.region  jeremy  "Germany" world
+  france  <- set $ C.region  gabriel "France"  world
 
-  -- A few regions including the root "World".
-  world   <- Db.set $ C.region' jeremy  "World"
-  germany <- Db.set $ C.region  jeremy  "Germany" world
-  france  <- Db.set $ C.region  gabriel "France"  world
+  -- Some metrics we want to measure.
+  co2        <- set $ C.metric  gabriel "CO2 Emissions" (SI.liter Dim./ SI.second)
+  plasticTax <- set $ C.metric' gabriel "Plastic Tax"   "%"
 
-  -- Some metrics, not added to regions yet.
-  co2        <- Db.set $ C.metric  gabriel "CO2 Emissions" (SI.liter Dim./ SI.second)
-  plasticTax <- Db.set $ C.metric' gabriel "Plastic Tax"   "%"
+  -- Record progress for the metrics for France and Germany.
+  set $ C.progress co2        germany [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
+  set $ C.progress co2        france  [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
+  set $ C.progress plasticTax france  [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
+  set $ C.progress plasticTax germany [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
 
-  -- Some progress for the regions.
-  Db.set $ C.progress co2        germany [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
-  Db.set $ C.progress co2        france  [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
-  Db.set $ C.progress plasticTax france  [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
-  Db.set $ C.progress plasticTax germany [(47, (2020, 2, 2)), (40, (2020, 4, 4))]
-
-  -- CO2 targets for France.
-  Db.set $ C.targets co2 france [
+  -- And set the CO2 targets for France.
+  set $ C.targets co2 france [
       C.targetDecrease 35 "UN 2020"       2020 1 1
     , C.targetDecrease 30 "National Plan" 2025 5 5
     ]
