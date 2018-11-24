@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a0dd3b91b521241ee9b63990f7bcfabb1d92e72740d7c36f2f09e150f68e4ad8
+-- hash: dd55d59f584e6361f4a0b4b3848a054b444b2fa1958adbd8651197b016ac1570
 
 name:           backend
 version:        0.1.0.0
@@ -37,6 +37,7 @@ library
       Paths_backend
   hs-source-dirs:
       src
+  default-extensions: LambdaCase
   build-depends:
       aeson
     , base >=4.7 && <5
@@ -65,6 +66,7 @@ executable backend-exe
       Paths_backend
   hs-source-dirs:
       app
+  default-extensions: LambdaCase
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
@@ -95,6 +97,7 @@ executable backend-tutorial-exe
       Paths_backend
   hs-source-dirs:
       app-tutorial
+  default-extensions: LambdaCase
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
@@ -126,6 +129,7 @@ test-suite backend-test
       Paths_backend
   hs-source-dirs:
       test
+  default-extensions: LambdaCase
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson

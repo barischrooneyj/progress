@@ -4,4 +4,4 @@ module Main where
 import           Tutorial (runExample)
 
 main :: IO ()
-main = runExample
+main = print "Not implemented"

@@ -12,11 +12,11 @@ import qualified Tutorial
 main :: IO ()
 main = do
   [configName] <- getArgs
-  case getConfig configName of
+  getConfig configName >>= \case
     Nothing -> putStrLn $ "No Config named '" ++ configName ++ "'"
     Just config -> do
       putStrLn $ "Using Config: " ++ show config
       putStrLn "Populating database from 'Tutorial.example'"
       runWith (_configStoreConfig config) Tutorial.example
       putStrLn $ "Starting server on port " ++ show (_configPort config)
-      Server.runStoreServer config
+      Server.run config
