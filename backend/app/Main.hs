@@ -5,7 +5,7 @@ import           System.Environment (getArgs)
 
 import           Telescope.Class    (runWith)
 
-import           Config             (getConfig, _configStoreConfig)
+import           Config             (Config (..), getConfig, _configStoreConfig)
 import qualified Server
 import qualified Tutorial
 
@@ -15,7 +15,7 @@ main = do
   getConfig configName >>= \case
     Nothing -> putStrLn $ "No Config named '" ++ configName ++ "'"
     Just config -> do
-      putStrLn $ "Using Config: " ++ show config
+      putStrLn $ "Using: " ++ show config
       putStrLn "Populating database from 'Tutorial.example'"
       runWith (_configStoreConfig config) Tutorial.example
       putStrLn $ "Starting server on port " ++ show (_configPort config)

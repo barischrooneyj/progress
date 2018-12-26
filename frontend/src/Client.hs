@@ -30,7 +30,13 @@ firstWhereDyn :: (FromJSON a, MonadWidget t m) =>
   a -> Text -> Text -> Text -> Config -> m (Dynamic t (Maybe (Maybe a)))
 firstWhereDyn a type' field name config = do
   startEvent <- getPostBuild
-  let request = postJson (Text.concat ["http://localhost:", Text.pack $ show $ _configStaticPort config, "/", type', "/", field]) name
+  let request = postJson (
+        Text.concat [
+            "http://localhost:",
+            Text.pack $ show $ _configStaticPort config,
+            "/", type',
+            "/", field
+            ]) name
   asyncEvent <- performRequestAsync $ tag (constant request) startEvent
   holdDyn (Just Nothing) $ fmap (Just . decodeXhrResponse) asyncEvent
 
