@@ -1,19 +1,19 @@
 module Config where
 
-import           Telescope.Class      (StoreConfig, newStoreConfig)
-import           Telescope.Store.File (File (File))
+import           Telescope.Source      (SourceConfig)
+import           Telescope.Source.File (fileConfig)
 
 -- | Configuration options based on deployment.
 data Config = Config {
-    _configCors        :: Bool
-  , _configPort        :: Int
-  , _configStoreConfig :: StoreConfig File
+    _configCors         :: Bool
+  , _configPort         :: Int
+  , _configSourceConfig :: SourceConfig
   } deriving Show
 
 devConfig :: IO Config
 devConfig = do
-  storeConfig <- newStoreConfig "dev" File
-  pure $ Config True 8081 storeConfig
+  sourceConfig <- fileConfig "dev"
+  pure $ Config True 8081 sourceConfig
 
 getConfig :: String -> IO (Maybe Config)
 getConfig = \case

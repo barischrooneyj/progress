@@ -3,11 +3,11 @@ module Main where
 
 import           System.Environment (getArgs)
 
-import           Telescope.Class    (runWith)
+import           Telescope.Monad    (runScope)
 
-import           Config             (Config (..), getConfig, _configStoreConfig)
+import           Config             (Config (..), getConfig)
 import qualified Server
-import qualified Tutorial
+import           Tutorial           (example)
 
 main :: IO ()
 main = do
@@ -16,7 +16,7 @@ main = do
     Nothing -> putStrLn $ "No Config named '" ++ configName ++ "'"
     Just config -> do
       putStrLn $ "Using: " ++ show config
-      putStrLn "Populating database from 'Tutorial.example'"
-      runWith (_configStoreConfig config) Tutorial.example
+      putStrLn "Running 'Tutorial.example'"
+      runScope (_configSourceConfig config) Tutorial.example
       putStrLn $ "Starting server on port " ++ show (_configPort config)
       Server.run config

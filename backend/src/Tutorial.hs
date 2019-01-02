@@ -1,6 +1,8 @@
-{-# LANGUAGE KindSignatures      #-}
-{-# LANGUAGE DataKinds           #-}
-{-# LANGUAGE StandaloneDeriving  #-}
+{-# LANGUAGE DataKinds          #-}
+{-# LANGUAGE FlexibleContexts   #-}
+{-# LANGUAGE KindSignatures     #-}
+{-# LANGUAGE MonoLocalBinds     #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 -- | Example database usage, see the 'example' below for a block of operations.
 module Tutorial where
@@ -10,45 +12,35 @@ import           Numeric.Units.Dimensional         as Dim
 import qualified Numeric.Units.Dimensional.SIUnits as SI
 import           Text.Read                         (readMaybe)
 
-import           Telescope.Class                   (MStoreA, StoreConfig, Store (..))
-import           Telescope.Store.File              (File (..))
+import           Telescope.Operations              (set)
+import           Telescope.Monad                   (MonadScope)
+import           Telescope.Source                  (SourceConfig)
+import           Telescope.Source.File             (fileConfig)
 
 import           BackendModel
 import qualified Constructors                      as C
 import           Model                             (Region, User)
 import           Pretty                            (pretty, prettyLn)
 
--- * To use the database interactively in GHCI:
+-- * To start an interactive database session:
 --
--- *     Open GHCI with @stack ghci progress:exe:progress-exe@ or other.
--- *     Load this tutorial with all its useful imports, @:l src/Tutorial.hs@.
--- *     Create a database, run the 'example' below, and print the database:
--- >         db <- newInMemoryStore
--- >         run db example
--- >         prettyLn db
+-- *     Compile the progress library with @stack ghci progress:exe:progress-exe@.
 --
--- *     For ease all the above is combined into:
+-- *     Bring this tutorial into scope, @:l src/Tutorial.hs@.
+--
+-- *     To create a database, run the 'example', and print the database:
+-- >         config <- fileConfig "temp"
+-- >         runScope config example
+-- >         print =<< view User{} "john"
+--
+-- *     All the above can be accomplished in one go with:
 -- >         ./interact.sh
 --
--- *     You can run an individual command like:
--- >         run db $ Db.set $ C.user "geoff" "geoffspasword"
+-- *     Run an individual database operation like:
+-- >         runScope config $ set $ C.user "geoff" "geoffspasword"
 
--- | A short example, similar to above. We create a database, but with an event
--- handler that prints a message whenever a 'User' is set in the database. Then
--- we run a few operation, namely the 'example' below and also print the entire
--- database contents.
-runExample :: Store s => StoreConfig s -> IO ()
-runExample = const $ pure ()
-  -- db <- Db.new [printYayWhenUserSet] :: IO InMemoryStore
-  -- Db.run db example
-  -- prettyLn db
-  -- where printYayWhenUserSet s = Just $
-  --         case (readMaybe s :: Maybe User) of
-  --           Just user -> putStrLn $ "Yay, set " ++ pretty user
-            -- Nothing   -> pure ()
-
--- | An example of how we can modify stored values.
-example :: MStoreA ()
+-- | Insert some example data into the data source.
+example :: MonadScope m => m ()
 example = void $ do
 
   -- First we create two users.

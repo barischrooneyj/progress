@@ -4,12 +4,12 @@
 -- | Modeling the progress and targets of regions.
 module Model where
 
-import Data.Serialize            (Serialize)
-import Data.Set                  (Set)
-import Data.Time.Calendar        (Day (..))
-import Data.Typeable             (Typeable)
-import GHC.Generics              (Generic)
-import Numeric.Units.Dimensional (Dimension' (..))
+import           Data.Serialize            (Serialize)
+import           Data.Set                  (Set)
+import           Data.Time.Calendar        (Day (..))
+import           Data.Typeable             (Typeable)
+import           GHC.Generics              (Generic)
+import           Numeric.Units.Dimensional (Dimension' (..))
 
 -- | First our many type synonyms!
 type DateTime        = Day
@@ -51,6 +51,7 @@ data User = User {
   } deriving (Read, Show, Typeable, Generic)
 
 instance Serialize User
+
 
 -- | A measurable quantity like "CO2 emissions" or "Plastic tax".
 data Metric = Metric {

@@ -4,11 +4,11 @@
   packages = {
     common = ./common;
     frontend = ./frontend;
-    simple-store = ./backend/simple-store;
+    telescope = ./telescope;
   };
 
   shells = {
-    ghc = ["common" "frontend" "simple-store"];
+    ghc = ["common" "frontend" "telescope"];
     ghcjs = ["common" "frontend"];
   };
 })

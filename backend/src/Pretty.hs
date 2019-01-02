@@ -14,8 +14,7 @@ import           Data.Typeable                 (Typeable)
 import           Numeric.Units.Dimensional     (Dimension' (..))
 import           Text.Read                     (readMaybe)
 
-import           Telescope.Class               (StoreConfig)
-import           Telescope.Store.File          (File (..))
+import           Telescope.Source              (SourceConfig)
 
 import           BackendModel
 
@@ -127,7 +126,7 @@ instance Pretty Rep where
     ]
 
 -- | A simple way to show the entire database without looking at types.
-instance Typeable s => Pretty (StoreConfig s) where
+instance Pretty SourceConfig where
   prettyLn = putStrLn . show
     -- db <- readMVar mapMVar
 

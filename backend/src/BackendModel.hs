@@ -28,8 +28,8 @@ import qualified Data.Set                  as Set
 import           GHC.Generics              (Generic)
 import           Numeric.Units.Dimensional (Dimension' (..))
 
-import           Telescope.Class           (Identifiable, Storable (..),
-                                            Update (..), key)
+import           Telescope.Storable        (Storable (..),
+                                            PKey (..))
 
 import           Model
 
@@ -39,8 +39,8 @@ deriving instance ToJSON Dimension'
 
 makeLensesWith camelCaseFields ''User
 
-instance Identifiable User Username where
-  key u = u ^. username
+instance PKey User Username where
+  pKey u = u ^. username
 
 instance Storable User Username
 
@@ -50,8 +50,8 @@ deriving instance ToJSON User
 
 makeLensesWith camelCaseFields ''Metric
 
-instance Identifiable Metric MetricKey where
-  key m = (m ^. name, m ^. dimension)
+instance PKey Metric MetricKey where
+  pKey m = (m ^. name, m ^. dimension)
 
 instance Storable Metric MetricKey
 
@@ -61,16 +61,18 @@ deriving instance ToJSON Metric
 
 makeLensesWith camelCaseFields ''Region
 
-instance Identifiable Region RegionName where
-  key r = r ^. name
+instance PKey Region RegionName where
+  pKey r = r ^. name
 
-instance Storable Region RegionName where
-  onSetUpdates = const [updateRegionChildren]
-    where updateRegionChildren = Update $ \a -> (
-              Region{}
-            , Set.toList $ a ^. parents
-            , \(b :: Region) -> b & children %~ Set.insert (a ^. name)
-            )
+instance Storable Region RegionName
+
+-- instance Storable Region RegionName where
+--   onSetUpdates = const [updateRegionChildren]
+--     where updateRegionChildren = Update $ \a -> (
+--               Region{}
+--             , Set.toList $ a ^. parents
+--             , \(b :: Region) -> b & children %~ Set.insert (a ^. name)
+--             )
 
 deriving instance ToJSON Region
 
@@ -78,16 +80,16 @@ deriving instance ToJSON Region
 
 makeLensesWith camelCaseFields ''Progress
 
-instance Identifiable Progress ProgressKey where
-  key p = (p ^. metric, p ^.region)
+instance PKey Progress ProgressKey where
+  pKey p = (p ^. metric, p ^.region)
 
 instance Storable Progress ProgressKey where
-  onSetUpdates = const [updateRegionProgress]
-    where updateRegionProgress = Update $ \a -> (
-              Region{}
-            , [a ^. region]
-            , \(b :: Region) -> b & progress %~ Set.insert (a ^. ident)
-            )
+--   onSetUpdates = const [updateRegionProgress]
+--     where updateRegionProgress = Update $ \a -> (
+--               Region{}
+--             , [a ^. region]
+--             , \(b :: Region) -> b & progress %~ Set.insert (a ^. ident)
+--             )
 
 deriving instance ToJSON Progress
 
@@ -101,8 +103,8 @@ deriving instance ToJSON Target
 
 makeLensesWith camelCaseFields ''Targets
 
-instance Identifiable Targets TargetsKey where
-  key t = (t ^. metric, t ^.region)
+instance PKey Targets TargetsKey where
+  pKey t = (t ^. metric, t ^.region)
 
 instance Storable Targets TargetsKey
 
@@ -112,8 +114,8 @@ deriving instance ToJSON Targets
 
 makeLensesWith camelCaseFields ''Rep
 
-instance Identifiable Rep RepKey where
-  key r = (r ^. name, r ^.region)
+instance PKey Rep RepKey where
+  pKey r = (r ^. name, r ^.region)
 
 instance Storable Rep RepKey
 

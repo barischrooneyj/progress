@@ -1,8 +1,10 @@
--- This file has been generated from package.yaml by hpack version 0.28.2.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.1.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 21524ca7f877441f436275fd4633cad98a02abd11a3494d501e9c3d9a2c171c3
+-- hash: 9d01717eb99fcc505acf7544d889e56c4be1d5db74862c05f64f6c2176124b43
 
 name:           frontend
 version:        0.1.0.0
@@ -15,10 +17,9 @@ copyright:      Jeremy Barisch-Rooney (c) 2018
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
 extra-source-files:
-    ChangeLog.md
     README.md
+    ChangeLog.md
 
 source-repository head
   type: git

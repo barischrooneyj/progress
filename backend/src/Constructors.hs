@@ -6,7 +6,7 @@ import qualified Data.Set                  as Set
 import           Data.Time.Calendar        (fromGregorian)
 import qualified Numeric.Units.Dimensional as Dim
 
-import           Telescope.Class           (Identifiable (key))
+import           Telescope.Storable        (PKey (..))
 
 import           BackendModel
 
@@ -32,7 +32,7 @@ region u rn r = region' u rn & parents .~ Set.singleton (r ^. name)
 
 -- | Constructor for a region's progress in some metric.
 progress :: Metric -> Region -> [(MetricValue, (Integer, Int, Int))] -> Progress
-progress met rg ms = Progress 0 (rg ^. owner) (key met) (rg ^. name) [] ms'
+progress met rg ms = Progress 0 (rg ^. owner) (pKey met) (rg ^. name) [] ms'
   where ms' = map (\(mv, (y, m, d)) -> (mv, fromGregorian y m d)) ms
 
 -- | Constructor for a region's targets in some metric.
@@ -47,5 +47,6 @@ target increase value description y m d = Target {
   , _targetDescription = description
   , _targetDate = fromGregorian y m d
   }
+
 targetDecrease = target False
 targetIncrease = target True

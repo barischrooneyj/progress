@@ -40,6 +40,12 @@ firstWhereDyn a type' field name config = do
   asyncEvent <- performRequestAsync $ tag (constant request) startEvent
   holdDyn (Just Nothing) $ fmap (Just . decodeXhrResponse) asyncEvent
 
+viewRxE :: (MonadWidget t m) => m ()
+viewRxE = do
+  x :: 
+  x <-newEventWithTrigger
+  pure ()
+
 -- | A list of all values of type 'a'.
 allDyn :: (FromJSON a, MonadWidget t m) =>
   a -> Text -> Config -> m (Dynamic t (Maybe [a]))

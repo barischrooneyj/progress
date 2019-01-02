@@ -1,7 +1,7 @@
 -- | Run the example from 'Tutorial'.
 module Main where
 
-import           Tutorial (runExample)
+import           Tutorial (example)
 
 main :: IO ()
 main = print "Not implemented"
